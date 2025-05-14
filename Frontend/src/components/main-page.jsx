@@ -27,10 +27,10 @@ const MainPage = () => {
             <div className="project-cards">
                 <div className="project-card">
                     <div className="project-image">
-                        <img src="" height={280} alt="Енергетичний проєкт" />
+                        <img src="https://gwaramedia.com/wp-content/uploads/2022/07/tecz-51.jpg" height={280} width={470} alt="Енергетичний проєкт" />
                     </div>
                     <div className="project-content">
-                        <span className="project-category">Відбудова</span>
+                         <a href=""><span className="project-category">Відбудова</span></a>
                         <h3 className="project-title">Модернізація енергетичної мережі</h3>
                         <p className="project-excerpt">Проєкт з відновлення та модернізації енергетичної інфраструктури в Харківській області з впровадженням сучасних технологій.</p>
                         <a href="#" className="btn btn-primary">Детальніше</a>
@@ -38,10 +38,10 @@ const MainPage = () => {
                 </div>
                 <div className="project-card">
                     <div className="project-image">
-                        <img src="" height={280} alt="Технологічний стартап" />
+                        <img src="https://hub.kyivstar.ua/assets/cms/uploads/biznes_tehnologii_jpg_a81a98106e.webp" height={280} width={470} alt="Технологічний стартап" />
                     </div>
                     <div className="project-content">
-                        <span className="project-category">Стартап</span>
+                        <a href=""><span className="project-category">Стартап</span></a> 
                         <h3 className="project-title">EcoFarm - розумне сільське господарство</h3>
                         <p className="project-excerpt">Інноваційна система моніторингу та управління сільськогосподарськими угіддями з використанням ІоТ та штучного інтелекту.</p>
                         <a href="#" className="btn btn-primary">Детальніше</a>
@@ -49,10 +49,10 @@ const MainPage = () => {
                 </div>
                 <div className="project-card">
                     <div className="project-image">
-                        <img src="" height={280} alt="Медичний заклад" />
+                        <img src="https://vidnova.ua/wp-content/uploads/2024/03/IMG_2318-HDR-2-scaled.jpg" height={280} width={470} alt="Медичний заклад" />
                     </div>
                     <div className="project-content">
-                        <span className="project-category">Відбудова</span>
+                        <a href=""><span className="project-category">Відбудова</span></a> 
                         <h3 className="project-title">Сучасна клініка в Миколаєві</h3>
                         <p className="project-excerpt">Проєкт з будівництва та обладнання сучасного медичного центру для забезпечення якісної медичної допомоги.</p>
                         <a href="#" className="btn btn-primary">Детальніше</a>
@@ -61,6 +61,18 @@ const MainPage = () => {
             </div>
         </div>
     </section>
+
+    <section className="create-own-project">
+        <div className="container">
+          <div className="create-project">
+            <h3 className="create-title">Створи своє оголошення</h3>
+            <p>Опиши свій інвестиційний проєкт або ідею, щоб зацікавити потенційних інвесторів. Створи оголошення, яке допоможе твоїй ініціативі стати помітною</p>
+            <div className="buttons">
+              <a href="#" className="btn btn-first">Створити оголошення</a>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="investments">
         <div className="container">
@@ -87,13 +99,17 @@ const MainPage = () => {
         </div>
       </section>
 
-      <section className="create-own-project">
+      <section className="About">
         <div className="container">
-          <div className="create-project">
-            <h3 className="create-title">Створи своє оголошення</h3>
-            <p>Опиши свій інвестиційний проєкт або ідею, щоб зацікавити потенційних інвесторів. Створи оголошення, яке допоможе твоїй ініціативі стати помітною</p>
-            <div className="buttons">
-              <a href="#" className="btn btn-first">Створити оголошення</a>
+          <div className="about-us">
+            <div className="img">
+              <img src="https://fil-bud.if.ua/wp-content/uploads/2023/04/cde58075-0b4b-49e8-879b-1ceb345db6a0.jpg" width={400} height={250} alt="" />
+            </div>
+
+            <div className="info">
+              Ми — платформа, що об’єднує українських підприємців, стартапи та проєкти з відбудови з інвесторами, які вірять у майбутнє України.
+            Наша мета — зробити інвестиції прозорими, безпечними та доступними для кожного, хто хоче долучитися до економічного та соціального 
+            відновлення нашої країни. Платформа дозволяє легко знайти проєкти, що потребують фінансування — від інфраструктурних ініціатив до інноваційних технологій.
             </div>
           </div>
         </div>
