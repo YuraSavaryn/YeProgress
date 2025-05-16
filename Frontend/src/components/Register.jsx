@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from 'react-router-dom';
 import auth from "../auth";
-import { 
+import {
   createUserWithEmailAndPassword,
   signInWithPopup,
-  GoogleAuthProvider 
+  GoogleAuthProvider
 } from "firebase/auth";
 import "../index.css";
 
@@ -39,11 +39,39 @@ const Register = () => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       console.log("Користувача успішно створено: " + userCredential.user.email);
+      const username = "admin"; 
+      const password2 = "secret"; 
+      const base64Credentials = btoa(`${username}:${password2}`);
+
+      const response = await fetch("/api/adduser", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Basic ${base64Credentials}`
+        },
+        body: JSON.stringify({
+          id: 123,
+          firebaseId: 1235,
+          name: firstName,
+          surname: lastName,
+          phone: "wqeqw",
+          email: email,
+          password: password,
+          createdAt: new Date().toISOString(),
+          isVerified: false
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Помилка при надсиланні запиту");
+      }
+
       navigate("/");
     } catch (error) {
       alert("Помилка: " + error.message);
     }
   }
+
 
   return (
     <div className="auth-container">
@@ -53,10 +81,10 @@ const Register = () => {
           <div className="form-row">
             <div className="form-group">
               <label>Ім'я</label>
-              <input 
-                type="text" 
-                placeholder="Введіть ім'я" 
-                required 
+              <input
+                type="text"
+                placeholder="Введіть ім'я"
+                required
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 className="auth-input"
@@ -64,10 +92,10 @@ const Register = () => {
             </div>
             <div className="form-group">
               <label>Прізвище</label>
-              <input 
-                type="text" 
-                placeholder="Введіть прізвище" 
-                required 
+              <input
+                type="text"
+                placeholder="Введіть прізвище"
+                required
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 className="auth-input"
@@ -76,10 +104,10 @@ const Register = () => {
           </div>
           <div className="form-group">
             <label>Електронна пошта</label>
-            <input 
-              type="email" 
-              placeholder="example@email.com" 
-              required 
+            <input
+              type="email"
+              placeholder="example@email.com"
+              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="auth-input"
@@ -87,10 +115,10 @@ const Register = () => {
           </div>
           <div className="form-group">
             <label>Пароль</label>
-            <input 
-              type="password" 
-              placeholder="********" 
-              required 
+            <input
+              type="password"
+              placeholder="********"
+              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="auth-input"
@@ -98,10 +126,10 @@ const Register = () => {
           </div>
           <div className="form-group">
             <label>Підтвердження паролю</label>
-            <input 
-              type="password" 
-              placeholder="********" 
-              required 
+            <input
+              type="password"
+              placeholder="********"
+              required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="auth-input"

@@ -2,6 +2,7 @@ import React from "react"
 import '../index.css';
 import Header from "./Header";
 import Footer from "./Footer";
+import { Link } from "react-router-dom";
 
 const MainPage = () => {
     return(
@@ -15,8 +16,8 @@ const MainPage = () => {
               <p>Інвестиційна платформа, що з'єднує інвесторів з проєктами відбудови України та інноваційними стартапами. Разом ми створюємо сильнішу, сучаснішу та процвітаючу Україну</p>
             </div>
             <div className="buttons">
-              <a href="#" className="btn btn-first"> Інвестувати зараз </a>
-              <a href="#" className="btn btn-second"> <p>Дізнатися більше </p> </a>
+              <Link to="/projects" className="btn btn-first"> Інвестувати зараз </Link>
+              <Link to="#" className="btn btn-second"> <p>Дізнатися більше </p> </Link>
             </div>
         </div>
       </section>
@@ -68,7 +69,7 @@ const MainPage = () => {
             <h3 className="create-title">Створи своє оголошення</h3>
             <p>Опиши свій інвестиційний проєкт або ідею, щоб зацікавити потенційних інвесторів. Створи оголошення, яке допоможе твоїй ініціативі стати помітною</p>
             <div className="buttons">
-              <a href="#" className="btn btn-first">Створити оголошення</a>
+              <Link to="/create-project" className="btn btn-first">Створити оголошення</Link>
             </div>
           </div>
         </div>
