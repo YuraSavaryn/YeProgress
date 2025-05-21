@@ -20,7 +20,7 @@ public class Campaign {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    private User userId;
 
     private String title;
     private String description;

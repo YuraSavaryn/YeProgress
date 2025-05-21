@@ -10,6 +10,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentsCampaignDTO {
+    private Long commentId;
+    private Long userId;
+    private Long campaignId;
     private String content;
     private LocalDateTime createdAt;
 }

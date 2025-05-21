@@ -18,7 +18,7 @@ public class CampaignImage {
 
     @ManyToOne
     @JoinColumn(name = "campaign_id")
-    private Campaign campaign;
+    private Campaign campaignId;
 
     @Column(columnDefinition = "TEXT")
     private String imgUrl;
