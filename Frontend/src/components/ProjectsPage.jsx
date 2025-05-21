@@ -32,6 +32,15 @@ const ProjectsPage = () => {
       goal: 10000000,
       collected: 3200000,
       image: "https://vidnova.ua/wp-content/uploads/2024/03/IMG_2318-HDR-2-scaled.jpg"
+    },
+    {
+      id: 4,
+      title: "Модернізація енергетичної мережі",
+      description: "Проєкт з відновлення та модернізації енергетичної інфраструктури в Харківській області з впровадженням сучасних технологій.",
+      category: "Відбудова",
+      goal: 5000000,
+      collected: 1250000,
+      image: "https://gwaramedia.com/wp-content/uploads/2022/07/tecz-51.jpg"
     }
   ]);
 
@@ -199,8 +208,10 @@ const ProjectsPage = () => {
                   <img src={project.image} alt={project.title} />
                 </div>
                 <div className="project-content">
-                  <span className="project-category">{project.category}</span>
-                  <h3 className="project-title">{project.title}</h3>
+                  <div className="project-category">
+                    <span>{project.category}</span>
+                    </div> <br />
+                  <Link to={`/project/${project.id}`} className="project-title-link">{project.title}</Link>
                   <p className="project-excerpt">{project.description}</p>
                   
                   <div className="project-progress">

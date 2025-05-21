@@ -15,7 +15,10 @@ const MyProfile = () => {
     bio: 'Пристрасний меценат та автор кількох успішних краудфандингових проектів',
     avatar: 'https://cdn-icons-png.flaticon.com/512/8345/8345328.png',
     location: 'Київ, Україна',
-    joined: 'Липень 2022'
+    Instagram: 'https://www.instagram.com/your_username/',
+    Facebook: ' ',
+    Twitter: ' ',
+    Linkedin: ' ',
   });
 
   const [projects, setProjects] = useState([
@@ -122,7 +125,7 @@ const MyProfile = () => {
           <div className="profile-info">
             <div className="info-section">
                 <div className="social-links">
-                    <a href="https://instagram.com/your_username" target="_blank" rel="noopener noreferrer">
+                    <a href={profile.Instagram} target="_blank" rel="noopener noreferrer">
                         <FaInstagram className="social-icon" />
                     </a>
                     <a href="https://facebook.com/your_username" target="_blank" rel="noopener noreferrer">
@@ -163,6 +166,16 @@ const MyProfile = () => {
                     <textarea
                       name="bio"
                       value={profile.bio}
+                      onChange={handleInputChange}
+                      className="profile-textarea"
+                      rows="4"
+                    />
+                  </div>
+                  <div className="form-group-links">
+                    <label>Instagram:</label>
+                    <textarea
+                      name="instagram"
+                      placeholder="https://www.instagram.com/"
                       onChange={handleInputChange}
                       className="profile-textarea"
                       rows="4"
@@ -236,7 +249,7 @@ const MyProfile = () => {
             </div>
 
             <div className="action-buttons">
-              <button className="btn btn-logout" onClick={HandleSignOut}>
+              <button className="btn btn-first" onClick={HandleSignOut}>
                 <i className="fas fa-sign-out-alt"></i> Вийти
               </button>
             </div>
