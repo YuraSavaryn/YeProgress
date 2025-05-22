@@ -32,9 +32,12 @@ public class CommentsUserService {
     public CommentsUserDTO createComment(CommentsUserDTO commentsUserDTO) {
         User user = userRepository.findById(commentsUserDTO.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + commentsUserDTO.getUserId()));
+        User userAuthor = userRepository.findById(commentsUserDTO.getUserAuthorId())
+                .orElseThrow(() -> new RuntimeException("User author not found with id: " + commentsUserDTO.getUserAuthorId()));
 
         CommentsUser commentsUser = commentsUserMapper.toEntity(commentsUserDTO);
         commentsUser.setUser(user);
+        commentsUser.setUserAuthor(userAuthor);
         CommentsUser savedComment = commentsUserRepository.save(commentsUser);
         return commentsUserMapper.toDto(savedComment);
     }
@@ -58,9 +61,12 @@ public class CommentsUserService {
 
         User user = userRepository.findById(commentsUserDTO.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + commentsUserDTO.getUserId()));
+        User userAuthor = userRepository.findById(commentsUserDTO.getUserAuthorId())
+                .orElseThrow(() -> new RuntimeException("User author not found with id: " + commentsUserDTO.getUserAuthorId()));
 
         commentsUserMapper.updateEntityFromDto(commentsUserDTO, commentsUser);
         commentsUser.setUser(user);
+        commentsUser.setUserAuthor(userAuthor);
         CommentsUser savedComment = commentsUserRepository.save(commentsUser);
         return commentsUserMapper.toDto(savedComment);
     }

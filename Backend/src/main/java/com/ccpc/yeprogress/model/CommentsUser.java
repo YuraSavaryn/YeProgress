@@ -21,6 +21,10 @@ public class CommentsUser {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "user_author")
+    private User userAuthor;
+
     @Column(columnDefinition = "TEXT")
     private String content;
 

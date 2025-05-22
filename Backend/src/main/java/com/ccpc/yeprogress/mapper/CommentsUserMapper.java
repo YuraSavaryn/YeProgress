@@ -9,10 +9,15 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface CommentsUserMapper {
     @Mapping(target = "userId", source = "user.userId")
+    @Mapping(target = "userAuthorId", source = "userAuthor.userId")
     CommentsUserDTO toDto(CommentsUser commentsUser);
 
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "userAuthor", ignore = true)
     CommentsUser toEntity(CommentsUserDTO commentsUserDTO);
 
-    @Mapping(target = "commentId", ignore = true) // Ігноруємо commentId під час оновлення
+    @Mapping(target = "commentId", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "userAuthor", ignore = true)
     void updateEntityFromDto(CommentsUserDTO commentsUserDTO, @MappingTarget CommentsUser commentsUser);
 }

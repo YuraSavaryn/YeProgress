@@ -21,6 +21,9 @@ public class CommentsUserController {
 
     @PostMapping
     public ResponseEntity<CommentsUserDTO> createComment(@RequestBody CommentsUserDTO commentsUserDTO) {
+        if (commentsUserDTO.getUserAuthorId() == null) {
+            return ResponseEntity.badRequest().body(null);
+        }
         CommentsUserDTO createdComment = commentsUserService.createComment(commentsUserDTO);
         return ResponseEntity.ok(createdComment);
     }
@@ -39,6 +42,9 @@ public class CommentsUserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<CommentsUserDTO> updateComment(@PathVariable Long id, @RequestBody CommentsUserDTO commentsUserDTO) {
+        if (commentsUserDTO.getUserAuthorId() == null) {
+            return ResponseEntity.badRequest().body(null);
+        }
         CommentsUserDTO updatedComment = commentsUserService.updateComment(id, commentsUserDTO);
         return ResponseEntity.ok(updatedComment);
     }
