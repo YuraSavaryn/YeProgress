@@ -1,5 +1,6 @@
 package com.ccpc.yeprogress.model;
 
+import com.ccpc.yeprogress.model.types.AuthenticationStatusType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,9 +26,8 @@ public class Authentication {
     @JoinColumn(name = "method_id")
     private AuthenticationMethod method;
 
-    @ManyToOne
-    @JoinColumn(name = "status_id")
-    private AuthenticationStatus status;
+    @Enumerated(EnumType.STRING)
+    private AuthenticationStatusType status;
 
     private String externalAuthId;
     private LocalDateTime verifiedAt;

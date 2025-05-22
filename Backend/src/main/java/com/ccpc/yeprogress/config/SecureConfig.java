@@ -16,7 +16,7 @@ public class SecureConfig {
                         .requestMatchers("/api/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults()) // заміна застарілого httpBasic()
+                .httpBasic(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable());
 
         return http.build();

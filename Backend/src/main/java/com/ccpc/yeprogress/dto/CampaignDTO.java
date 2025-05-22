@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,4 +18,5 @@ public class CampaignDTO {
     private BigDecimal goalAmount;
     private LocalDateTime createdDate;
     private LocalDateTime approxDeadline;
+    private String status;
 }
