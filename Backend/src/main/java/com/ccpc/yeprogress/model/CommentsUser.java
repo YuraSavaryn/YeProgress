@@ -19,7 +19,7 @@ public class CommentsUser {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    private User userId;
 
     @Column(columnDefinition = "TEXT")
     private String content;

@@ -19,11 +19,11 @@ public class CommentsCampaign {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    private User userId;
 
     @ManyToOne
     @JoinColumn(name = "campaing_id")
-    private Campaign campaign;
+    private Campaign campaignId;
 
     @Column(columnDefinition = "TEXT")
     private String content;

@@ -1,5 +1,6 @@
 package com.ccpc.yeprogress.model;
 
+import com.ccpc.yeprogress.model.types.CampaignStatusType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
