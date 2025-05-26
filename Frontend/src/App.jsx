@@ -7,7 +7,7 @@ import MyProfile from './components/myFrofile';
 import CreateProjectPage from './components/CreateProjectPage';
 import ProjectsPage from './components/ProjectsPage';
 import ProjectDetail from './components/ProjectDetailPage';
-import EditPage from './components/EditProject';
+import EditProjectPage from './components/EditProject';
 
 const App = () => {
   return (
@@ -19,7 +19,7 @@ const App = () => {
       <Route path="/projects" element={<ProjectsPage />} />
       <Route path="/create-project" element={<CreateProjectPage />} />
       <Route path="/project/:id" element={<ProjectDetail />}></Route>
-      <Route path="/project/edit/:id" element={<EditPage />}></Route>
+      <Route path="/project/edit/:id" element={<EditProjectPage />}></Route>
     </Routes>
   );
 };
