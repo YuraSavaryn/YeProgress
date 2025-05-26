@@ -1,184 +1,240 @@
-import React from "react";
-import { useParams } from "react-router-dom";
-import { useState } from "react";
-import '../index.css';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import auth from "../auth";
+import "../index.css";
 import Header from "./Header";
+import Footer from "./Footer";
 
 function EditProjectPage() {
-      const [projects, setProjects] = useState([
-        {
-          id: 1,
-          title: "Модернізація енергетичної мережі",
-          description:
-            "Проєкт з відновлення та модернізації енергетичної інфраструктури в Харківській області з впровадженням сучасних технологій.",
-          category: "Відбудова",
-          goal: 5000000,
-          collected: 1250000,
-          image: "https://gwaramedia.com/wp-content/uploads/2022/07/tecz-51.jpg",
-          active: "Активний",
-        },
-        {
-          id: 2,
-          title: "EcoFarm - розумне сільське господарство",
-          description:
-            "Інноваційна система моніторингу та управління сільськогосподарськими угіддями з використанням ІоТ та штучного інтелекту.",
-          category: "Стартап",
-          goal: 2500000,
-          collected: 750000,
-          image: "https://hub.kyivstar.ua/assets/cms/uploads/biznes_tehnologii_jpg_a81a98106e.webp",
-          active: "Активний",
-        },
-        {
-          id: 3,
-          title: "Сучасна клініка в Миколаєві",
-          description:
-            "Проєкт з будівництва та обладнання сучасного медичного центру для забезпечення якісної медичної допомоги.",
-          category: "Відбудова",
-          goal: 10000000,
-          collected: 3200000,
-          image: "https://vidnova.ua/wp-content/uploads/2024/03/IMG_2318-HDR-2-scaled.jpg",
-          active: "Активний",
-        },
-      ]);
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    category: "Відбудова",
+    goal: "",
+    collected: "",
+    monoLink: "",
+    image: "",
+    active: "Активний",
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-      const Id = useParams();
-      const project = projects.find((p) => p.id === Id);
+  useEffect(() => {
+    const fetchProject = async () => {
+      try {
+        const username = "admin";
+        const password = "admin";
+        const base64Credentials = btoa(`${username}:${password}`);
 
-      const [formData, setFormData] = useState({
-        title: project.title,
-        description: project.description,
-        category: project.category,
-        goal: project.goal,
-        collected: project.collected,
-        image: project.image,
-        active: project.active,
+        const response = await fetch(`http://localhost:8080/api/campaigns/${id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Basic ${base64Credentials}`,
+          },
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+        }
+
+        const project = await response.json();
+        setFormData({
+          title: project.title || "",
+          description: project.description || "",
+          category: project.category || "Відбудова",
+          goal: project.goal || "",
+          collected: project.collected || 0,
+          monoLink: project.monoLink || "",
+          image: project.image || "",
+          active: project.active || "Активний",
+        });
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching project:", error.message);
+        setError(error.message);
+        setLoading(false);
+      }
+    };
+
+    fetchProject();
+  }, [id]);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({ ...formData, image: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleUpdateProject = async () => {
+    try {
+      if (!formData.title || !formData.description || !formData.goal) {
+        throw new Error("Заповніть усі обов’язкові поля (назва, опис, ціль)");
+      }
+
+      const user = auth.currentUser;
+      if (!user) throw new Error("Користувач не авторизований");
+
+      const username = "admin";
+      const password = "admin";
+      const base64Credentials = btoa(`${username}:${password}`);
+
+      const response = await fetch(`http://localhost:8080/api/campaigns/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${base64Credentials}`,
+        },
+        body: JSON.stringify({
+          title: formData.title,
+          description: formData.description,
+          goal: Number(formData.goal) || 0,
+          category: formData.category,
+          monoLink: formData.monoLink,
+          image: formData.image || "https://placehold.co/600x400?text=No+Image",
+          firebaseId: user.uid,
+          collected: Number(formData.collected) || 0,
+          createdAt: new Date().toISOString(),
+          active: formData.active,
+        }),
       });
 
-      const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-      };
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+      }
 
-      const handleSave = () => {
-        const updatedProjects = projects.map((p) =>
-          p.id === projectId ? { ...p, ...formData } : p
-        );
-        setProjects(updatedProjects);
-        console.log('Оновлені дані проєкту:', formData);
-        alert('Зміни збережено! Перевірте консоль для деталей.');
-      };
+      await response.json();
+      alert("Проєкт успішно оновлено!");
+      navigate("/projects");
+    } catch (error) {
+      console.error("Error updating project:", error.message);
+      alert(`Помилка: ${error.message}`);
+    }
+  };
 
-      const handleCancel = () => {
-        setFormData({
-          title: project.title,
-          description: project.description,
-          category: project.category,
-          goal: project.goal,
-          collected: project.collected,
-          image: project.image,
-          active: project.active,
-        });
-        alert('Зміни скасовано.');
-      };
+  const handleCancel = () => {
+    navigate("/projects");
+    alert("Зміни скасовано.");
+  };
 
-      return (
-        <>
-        <Header />
-        <div className="create-project-form">
-          <h3>Редагування оголошення</h3>
-          <div className="form-group">
-            <label htmlFor="title">Назва проєкту</label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              placeholder="Введіть назву проєкту"
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="description">Опис</label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Введіть опис проєкту"
-            ></textarea>
-          </div>
-          <div className="form-row">
+  if (loading) return <div>Завантаження...</div>;
+  if (error) return <div>Помилка: {error}</div>;
+
+  return (
+    <>
+      <Header />
+      <div className="projects-page">
+        <div className="container">
+          <div className="create-project-form">
+            <h3>Редагування проєкту</h3>
             <div className="form-group">
-              <label htmlFor="category">Категорія</label>
-              <select
-                id="category"
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-              >
-                <option value="Відбудова">Відбудова</option>
-                <option value="Стартап">Стартап</option>
-                <option value="Інновації">Інновації</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label htmlFor="active">Статус</label>
-              <select
-                id="active"
-                name="active"
-                value={formData.active}
-                onChange={handleChange}
-              >
-                <option value="Активний">Активний</option>
-                <option value="Неактивний">Неактивний</option>
-              </select>
-            </div>
-          </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="goal">Ціль (грн)</label>
+              <label htmlFor="title">Назва проєкту</label>
               <input
-                type="number"
-                id="goal"
-                name="goal"
-                value={formData.goal}
+                type="text"
+                id="title"
+                name="title"
+                value={formData.title}
                 onChange={handleChange}
-                placeholder="Введіть цільову суму"
+                placeholder="Введіть назву проєкту"
               />
             </div>
             <div className="form-group">
-              <label htmlFor="collected">Зібрано (грн)</label>
-              <input
-                type="number"
-                id="collected"
-                name="collected"
-                value={formData.collected}
+              <label htmlFor="description">Опис</label>
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
                 onChange={handleChange}
-                placeholder="Введіть зібрану суму"
+                placeholder="Введіть опис проєкту"
               />
             </div>
-          </div>
-          <div className="form-group">
-            <label htmlFor="image">URL зображення</label>
-            <input
-              type="text"
-              id="image"
-              name="image"
-              value={formData.image}
-              onChange={handleChange}
-              placeholder="Введіть URL зображення"
-            />
-          </div>
-          <div className="form-buttons">
-            <button className="btn-first" onClick={handleSave}>
-              Зберегти
-            </button>
-            <button className="btn-second" onClick={handleCancel}>
-              Скасувати
-            </button>
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="category">Категорія</label>
+                <select id="category" name="category" value={formData.category} onChange={handleChange}>
+                  <option value="Відбудова">Відбудова</option>
+                  <option value="Стартап">Стартап</option>
+                  <option value="Інновації">Інновації</option>
+                  <option value="Освіта">Освіта</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="active">Статус</label>
+                <select id="active" name="active" value={formData.active} onChange={handleChange}>
+                  <option value="Активний">Активний</option>
+                  <option value="Неактивний">Неактивний</option>
+                </select>
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="goal">Ціль (грн)</label>
+                <input
+                  type="number"
+                  id="goal"
+                  name="goal"
+                  value={formData.goal}
+                  onChange={handleChange}
+                  placeholder="Введіть цільову суму"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="collected">Зібрано (грн)</label>
+                <input
+                  type="number"
+                  id="collected"
+                  name="collected"
+                  value={formData.collected}
+                  onChange={handleChange}
+                  placeholder="Введіть зібрану суму"
+                />
+              </div>
+            </div>
+            <div className="form-group">
+              <label htmlFor="monoLink">Посилання на mono-банку</label>
+              <input
+                type="url"
+                id="monoLink"
+                name="monoLink"
+                value={formData.monoLink}
+                onChange={handleChange}
+                placeholder="https://send.monobank.ua/..."
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="image">Зображення проєкту</label>
+              <input type="file" id="image" accept="image/*" onChange={handleImageUpload} />
+              {formData.image && (
+                <img src={formData.image} alt="Preview" style={{ maxWidth: "200px", marginTop: "10px" }} />
+              )}
+            </div>
+            <div className="form-buttons">
+              <button className="btn btn-first" onClick={handleUpdateProject}>
+                Зберегти
+              </button>
+              <button className="btn btn-second" onClick={handleCancel}>
+                Скасувати
+              </button>
+            </div>
           </div>
         </div>
-        </>
-      );
-    }
+      </div>
+      <Footer />
+    </>
+  );
+}
 
 export default EditProjectPage;

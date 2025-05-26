@@ -1876,6 +1876,12 @@ footer a:hover {
   }
 }
 
+.loading, .error, .not-found {
+  text-align: center;
+  padding: 50px;
+  font-size: 1.2rem;
+}
+
 @media (max-width: 480px) {
   header {
     padding: 12px 15px;
@@ -2043,3 +2049,24 @@ footer a:hover {
         gap: 0;
       }
     }
+
+.create-project-form select {
+  background-color: #ffffff;
+  color: #000000;
+  border: 1px solid #ccc;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.create-project-form select:focus,
+.create-project-form select:active {
+  background-color: #ffffff;
+  color: #000000;
+  outline: none;
+  border-color: #007bff;
+}
+
+.create-project-form select option {
+  background-color: #ffffff;
+  color: #000000;
+}

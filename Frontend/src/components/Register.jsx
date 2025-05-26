@@ -1,11 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from 'react-router-dom';
 import auth from "../auth";
-import {
-  createUserWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider
-} from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification, reload } from "firebase/auth";
 import "../index.css";
 
 const Register = () => {
@@ -15,18 +11,23 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const provider = new GoogleAuthProvider();
+  const [message, setMessage] = useState('');
+  const [user, setUser] = useState(null);
 
-  const handleGoogleRegister = async () => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      console.log("Успішна реєстрація користувача: " + user.email);
-      navigate("/");
-    } catch (error) {
-      alert("Помилка: " + error.message);
+  useEffect(() => {
+    let interval;
+    if (user) {
+      interval = setInterval(async () => {
+        await reload(user); // Оновлюємо інформацію про користувача
+        if (user.emailVerified) {
+          clearInterval(interval);
+          setMessage("Email підтверджено! Перенаправляємо...");
+          setTimeout(() => navigate("/"), 1500);
+        }
+      }, 3000); // перевіряємо кожні 3 секунди
     }
-  };
+    return () => clearInterval(interval);
+  }, [user, navigate]);
 
   const HandleSignUp = async (e) => {
     e.preventDefault();
@@ -38,9 +39,14 @@ const Register = () => {
 
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      console.log("Користувача успішно створено: " + userCredential.user.email);
-      const username = "admin"; 
-      const password2 = "admin"; 
+      const newUser = userCredential.user;
+      setUser(newUser);
+
+      await sendEmailVerification(newUser);
+
+      // Твоє API-запит сюди (можеш лишити як є)
+      const username = "admin";
+      const password2 = "admin";
       const base64Credentials = btoa(`${username}:${password2}`);
 
       const response = await fetch("http://localhost:8080/api/users", {
@@ -50,8 +56,7 @@ const Register = () => {
           "Authorization": `Basic ${base64Credentials}`
         },
         body: JSON.stringify({
-          id: 123,
-          firebaseId: 1235,
+          id: newUser.uid,
           name: firstName,
           surname: lastName,
           phone: "0966353123",
@@ -66,12 +71,11 @@ const Register = () => {
         throw new Error("Помилка при надсиланні запиту");
       }
 
-      navigate("/");
+      setMessage("Лист підтвердження надіслано. Будь ласка, перевірте пошту і підтвердіть email.");
     } catch (error) {
       alert("Помилка: " + error.message);
     }
   }
-
 
   return (
     <div className="auth-container">
@@ -81,85 +85,33 @@ const Register = () => {
           <div className="form-row">
             <div className="form-group">
               <label>Ім'я</label>
-              <input
-                type="text"
-                placeholder="Введіть ім'я"
-                required
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                className="auth-input"
-              />
+              <input type="text" required value={firstName} onChange={(e) => setFirstName(e.target.value)} className="auth-input" />
             </div>
             <div className="form-group">
               <label>Прізвище</label>
-              <input
-                type="text"
-                placeholder="Введіть прізвище"
-                required
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                className="auth-input"
-              />
+              <input type="text" required value={lastName} onChange={(e) => setLastName(e.target.value)} className="auth-input" />
             </div>
           </div>
           <div className="form-group">
             <label>Електронна пошта</label>
-            <input
-              type="email"
-              placeholder="example@email.com"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="auth-input"
-            />
+            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="auth-input" />
           </div>
           <div className="form-group">
             <label>Пароль</label>
-            <input
-              type="password"
-              placeholder="********"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="auth-input"
-            />
+            <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="auth-input" />
           </div>
           <div className="form-group">
             <label>Підтвердження паролю</label>
-            <input
-              type="password"
-              placeholder="********"
-              required
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="auth-input"
-            />
+            <input type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="auth-input" />
           </div>
-          <button type="submit" className="auth-button">
-            Зареєструватись
-          </button>
+          <button type="submit" className="auth-button">Зареєструватись</button>
         </form>
-        <div className="auth-divider">
-          <span>або</span>
-        </div>
 
-        <button onClick={handleGoogleRegister} className="auth-google-btn">
-          <img
-            src="https://developers.google.com/identity/images/g-logo.png"
-            alt="Google logo"
-            className="google-icon"
-          />
-          <span>Зареєструватись через Google</span>
-        </button>
+        {message && <p style={{ marginTop: "20px", color: user?.emailVerified ? "green" : "orange" }}>{message}</p>}
 
         <div className="auth-footer">
           <p>
-            Вже маєте акаунт?
-            <Link to='/Login'
-              className="auth-link"
-            >
-              Увійти
-            </Link>
+            Вже маєте акаунт? <Link to='/Login' className="auth-link">Увійти</Link>
           </p>
         </div>
       </div>

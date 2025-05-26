@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "../index.css";
 import Header from "./Header";
@@ -60,13 +60,47 @@ const ProjectsPage = () => {
     ? projects 
     : projects.filter(project => project.category === selectedCategory);
 
+  useEffect( () => {
+    const fetchProjects = async () => {
+      try {
+      const username = "admin";
+      const password = "admin";
+      const base64Credentials = btoa(`${username}:${password}`);
+
+      const response = await fetch(`http://localhost:8080/api/campaigns`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${base64Credentials}`,
+        },  
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+     }
+
+      const data = await response.json();
+      const normalizedData = Array.isArray(data) ? data.map(project => ({
+          ...project,
+          collected: project.collected ?? 0,
+          goal: project.goal ?? 0
+        })) : [];
+      setProjects(normalizedData);
+    } catch (error) {
+      console.error("Error fetching projects:", error.message);
+    }
+    }
+    fetchProjects();
+  }, []);
+
   const handleCreateProject = () => {
     const newProjectObj = {
       id: projects.length + 1,
       title: newProject.title,
       description: newProject.description,
       category: newProject.category,
-      goal: Number(newProject.goal),
+      goal: Number(newProject.goal) || 0,
       monoLink: newProject.monoLink,
       collected: 0,
       image: newProject.image || "https://placehold.co/600x400?text=No+Image"

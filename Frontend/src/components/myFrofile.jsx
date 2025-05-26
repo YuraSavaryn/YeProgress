@@ -69,6 +69,7 @@ const MyProfile = () => {
       const fetchUserProfile = async () => {
         try {
           const userId = user.uid;
+          console.log("Fetching profile for user:", userId);
           const username = "admin";
           const password = "admin";
           const base64Credentials = btoa(`${username}:${password}`);
@@ -78,11 +79,12 @@ const MyProfile = () => {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Basic ${base64Credentials}`,
-            }, 
+            },
           });
 
           if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            const errorText = await response.text();
+            throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
           }
 
           const data = await response.json();
@@ -100,7 +102,7 @@ const MyProfile = () => {
             LinkedIn: data.LinkedIn || prev.LinkedIn,
           }));
         } catch (error) {
-          console.error("Error fetching user profile:", error);
+          console.error("Error fetching user profile:", error.message);
         }
       };
 
