@@ -40,10 +40,10 @@ const Register = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       console.log("Користувача успішно створено: " + userCredential.user.email);
       const username = "admin"; 
-      const password2 = "secret"; 
+      const password2 = "admin"; 
       const base64Credentials = btoa(`${username}:${password2}`);
 
-      const response = await fetch("/api/adduser", {
+      const response = await fetch("http://localhost:8080/api/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -54,7 +54,7 @@ const Register = () => {
           firebaseId: 1235,
           name: firstName,
           surname: lastName,
-          phone: "wqeqw",
+          phone: "0966353123",
           email: email,
           password: password,
           createdAt: new Date().toISOString(),
