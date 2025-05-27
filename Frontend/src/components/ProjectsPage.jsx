@@ -14,33 +14,6 @@ const ProjectsPage = () => {
       goal: 5000000,
       collected: 1250000,
       image: "https://gwaramedia.com/wp-content/uploads/2022/07/tecz-51.jpg"
-    },
-    {
-      id: 2,
-      title: "EcoFarm - розумне сільське господарство",
-      description: "Інноваційна система моніторингу та управління сільськогосподарськими угіддями з використанням ІоТ та штучного інтелекту.",
-      category: "Стартап",
-      goal: 2500000,
-      collected: 750000,
-      image: "https://hub.kyivstar.ua/assets/cms/uploads/biznes_tehnologii_jpg_a81a98106e.webp"
-    },
-    {
-      id: 3,
-      title: "Сучасна клініка в Миколаєві",
-      description: "Проєкт з будівництва та обладнання сучасного медичного центру для забезпечення якісної медичної допомоги.",
-      category: "Відбудова",
-      goal: 10000000,
-      collected: 3200000,
-      image: "https://vidnova.ua/wp-content/uploads/2024/03/IMG_2318-HDR-2-scaled.jpg"
-    },
-    {
-      id: 4,
-      title: "Модернізація енергетичної мережі",
-      description: "Проєкт з відновлення та модернізації енергетичної інфраструктури в Харківській області з впровадженням сучасних технологій.",
-      category: "Відбудова",
-      goal: 5000000,
-      collected: 1250000,
-      image: "https://gwaramedia.com/wp-content/uploads/2022/07/tecz-51.jpg"
     }
   ]);
 
@@ -96,7 +69,7 @@ const ProjectsPage = () => {
 
   const handleCreateProject = () => {
     const newProjectObj = {
-      id: projects.length + 1,
+      id: projects.length + 1,  
       title: newProject.title,
       description: newProject.description,
       category: newProject.category,
