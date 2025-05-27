@@ -85,7 +85,18 @@
 			<artifactId>firebase-admin</artifactId>
 			<version>9.3.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>4.15.0</version>
+		</dependency>
 
+		<!-- ChromeDriver Manager (опційно, для автоматичного управління драйверами) -->
+		<dependency>
+			<groupId>io.github.bonigarcia</groupId>
+			<artifactId>webdrivermanager</artifactId>
+			<version>5.6.2</version>
+		</dependency>
 		<!-- Hibernate Core (explicitly added) -->
 		<dependency>
 			<groupId>org.hibernate.orm</groupId>
