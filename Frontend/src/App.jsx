@@ -8,6 +8,8 @@ import CreateProjectPage from './components/CreateProjectPage';
 import ProjectsPage from './components/ProjectsPage';
 import ProjectDetail from './components/ProjectDetailPage';
 import EditProjectPage from './components/EditProject';
+import AboutPage from './components/AboutPage';
+import ContactsPage from './components/ContactsPage';
 
 const App = () => {
   return (
@@ -20,6 +22,8 @@ const App = () => {
       <Route path="/create-project" element={<CreateProjectPage />} />
       <Route path="/project/:id" element={<ProjectDetail />}></Route>
       <Route path="/project/edit/:id" element={<EditProjectPage />}></Route>
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/contacts" element={<ContactsPage />} />
     </Routes>
   );
 };
