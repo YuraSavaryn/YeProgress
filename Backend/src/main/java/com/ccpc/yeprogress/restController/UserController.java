@@ -21,9 +21,9 @@ public class UserController {
         return ResponseEntity.ok(createdUser);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
-        UserDTO UserDTO = userService.getUserById(id);
+    @GetMapping("/{uid}")
+    public ResponseEntity<UserDTO> getUserById(@PathVariable String uid) {
+        UserDTO UserDTO = userService.getUserByFirebaseId(uid);
         return ResponseEntity.ok(UserDTO);
     }
 
@@ -33,15 +33,15 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO UserDTO) {
-        UserDTO updatedUser = userService.updateUser(id, UserDTO);
+    @PutMapping("/{uid}")
+    public ResponseEntity<UserDTO> updateUser(@PathVariable String uid, @RequestBody UserDTO UserDTO) {
+        UserDTO updatedUser = userService.updateUser(uid, UserDTO);
         return ResponseEntity.ok(updatedUser);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+    @DeleteMapping("/{uid}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String uid) {
+        userService.deleteUser(uid);
         return ResponseEntity.noContent().build();
     }
 }

@@ -33,6 +33,12 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
+    public UserDTO getUserByFirebaseId(String firebaseId) {
+        User user = userRepository.findByFirebaseId(firebaseId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return userMapper.toDto(user);
+    }
+
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(userMapper::toDto)
@@ -47,7 +53,19 @@ public class UserService {
         return userMapper.toDto(savedUser);
     }
 
+    public UserDTO updateUser(String firebaseId, UserDTO UserDTO) {
+        User user = userRepository.findByFirebaseId(firebaseId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        userMapper.updateEntityFromDto(UserDTO, user); // Використовуємо MapStruct для оновлення
+        User savedUser = userRepository.save(user);
+        return userMapper.toDto(savedUser);
+    }
+
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
+    }
+
+    public void deleteUser(String firebaseId) {
+        userRepository.deleteByFirebaseId(firebaseId);
     }
 }
