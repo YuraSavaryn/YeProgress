@@ -24,7 +24,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
         UserDTO createdUser = userService.createUser(userDTO);
-        authenticationService.createAuthentication(userService.getUserFromDTO(createdUser));
+        //authenticationService.createAuthentication(userService.getUserFromDTO(createdUser));
         return ResponseEntity.ok(createdUser);
     }
 
@@ -44,6 +44,12 @@ public class UserController {
     public ResponseEntity<UserDTO> updateUser(@PathVariable String uid, @RequestBody UserDTO UserDTO) {
         UserDTO updatedUser = userService.updateUser(uid, UserDTO);
         return ResponseEntity.ok(updatedUser);
+    }
+
+    @PutMapping("/verified/{uid}")
+    public ResponseEntity<UserDTO> updateVerificationUser(@PathVariable String uid) {
+        UserDTO updateUser = userService.updateVerificationUser(uid);
+        return ResponseEntity.ok(updateUser);
     }
 
     @DeleteMapping("/{uid}")

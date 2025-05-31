@@ -24,8 +24,8 @@ public interface AuthenticationMapper {
 
     @Mapping(target = "authenticationId", ignore = true)
     @Mapping(target = "user", ignore = true)
-    @Mapping(target = "method", ignore = true)
-    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "method.authMethodName", source = "methodName")
+    @Mapping(target = "status", source = "statusName", qualifiedByName = "displayNameToEnum") // Fix here
     void updateEntityFromDto(AuthenticationDTO authenticationDTO, @MappingTarget Authentication authentication);
 
     @Named("enumToDisplayName")

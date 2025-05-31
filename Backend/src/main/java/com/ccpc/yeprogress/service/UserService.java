@@ -70,6 +70,14 @@ public class UserService {
         return userMapper.toDto(savedUser);
     }
 
+    public UserDTO updateVerificationUser(String firebaseId) {
+        User user = userRepository.findByFirebaseId(firebaseId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setIsVerified(true);
+        User savedUser = userRepository.save(user);
+        return userMapper.toDto(savedUser);
+    }
+
     public void deleteUser(String firebaseId) {
         userRepository.deleteByFirebaseId(firebaseId);
     }
