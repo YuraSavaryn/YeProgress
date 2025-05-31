@@ -1,7 +1,9 @@
 package com.ccpc.yeprogress.restController;
 
 import com.ccpc.yeprogress.dto.UserDTO;
+import com.ccpc.yeprogress.service.AuthenticationService;
 import com.ccpc.yeprogress.service.UserService;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,19 +13,24 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+    private final UserService userService;
+    private final AuthenticationService authenticationService;
 
-    @Autowired
-    private UserService userService;
+    public UserController(UserService userService, AuthenticationService authenticationService) {
+        this.userService = userService;
+        this.authenticationService = authenticationService;
+    }
 
     @PostMapping
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO UserDTO) {
-        UserDTO createdUser = userService.createUser(UserDTO);
+    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
+        UserDTO createdUser = userService.createUser(userDTO);
+        authenticationService.createAuthentication(userService.getUserFromDTO(createdUser));
         return ResponseEntity.ok(createdUser);
     }
 
     @GetMapping("/{uid}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable String uid) {
-        UserDTO UserDTO = userService.getUserByFirebaseId(uid);
+        UserDTO UserDTO = userService.getUserDTOByFirebaseId(uid);
         return ResponseEntity.ok(UserDTO);
     }
 

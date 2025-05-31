@@ -21,7 +21,7 @@ public class Campaign {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User userId;
+    private User user;
 
     private String title;
     private String description;

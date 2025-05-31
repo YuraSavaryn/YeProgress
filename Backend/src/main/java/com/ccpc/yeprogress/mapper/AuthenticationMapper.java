@@ -23,7 +23,7 @@ public interface AuthenticationMapper {
     Authentication toEntity(AuthenticationDTO authenticationDTO);
 
     @Mapping(target = "authenticationId", ignore = true)
-    @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "user", ignore = true)
     @Mapping(target = "method", ignore = true)
     @Mapping(target = "status", ignore = true)
     void updateEntityFromDto(AuthenticationDTO authenticationDTO, @MappingTarget Authentication authentication);

@@ -31,7 +31,7 @@ public interface CampaignMapper {
     Campaign toEntity(CampaignDTO campaignDTO);
 
     @Mapping(target = "campaignId", ignore = true)
-    @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "user", ignore = true)
     @Mapping(target = "categoryId", ignore = true)
     @Mapping(target = "status", ignore = true)
     void updateEntityFromDto(CampaignDTO campaignDTO, @MappingTarget Campaign campaign);

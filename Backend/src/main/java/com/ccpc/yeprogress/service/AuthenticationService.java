@@ -3,6 +3,8 @@ package com.ccpc.yeprogress.service;
 import com.ccpc.yeprogress.dto.AuthenticationDTO;
 import com.ccpc.yeprogress.mapper.AuthenticationMapper;
 import com.ccpc.yeprogress.model.Authentication;
+import com.ccpc.yeprogress.model.User;
+import com.ccpc.yeprogress.model.types.AuthenticationStatusType;
 import com.ccpc.yeprogress.repository.AuthenticationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,9 +29,16 @@ public class AuthenticationService {
         return authenticationMapper.toDto(savedAuthentication);
     }
 
-    public AuthenticationDTO getAuthenticationById(Long id) {
-        Authentication authentication = authenticationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Authentication not found"));
+    public AuthenticationDTO createAuthentication(User user) {
+        Authentication authentication = new Authentication();
+        authentication.setUser(user);
+        authentication.setStatus(AuthenticationStatusType.NOT_VERIFIED);
+        Authentication savedAuthentication = authenticationRepository.save(authentication);
+        return authenticationMapper.toDto(savedAuthentication);
+    }
+
+    public AuthenticationDTO getAuthenticationByUserId(Long id) {
+        Authentication authentication = authenticationRepository.findByUser_UserId(id);
         return authenticationMapper.toDto(authentication);
     }
 
@@ -39,9 +48,8 @@ public class AuthenticationService {
                 .collect(Collectors.toList());
     }
 
-    public AuthenticationDTO updateAuthentication(Long id, AuthenticationDTO authenticationDTO) {
-        Authentication authentication = authenticationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Authentication not found"));
+    public AuthenticationDTO updateAuthentication(Long userId, AuthenticationDTO authenticationDTO) {
+        Authentication authentication = authenticationRepository.findByUser_UserId(userId);
         authenticationMapper.updateEntityFromDto(authenticationDTO, authentication);
         Authentication savedAuthentication = authenticationRepository.save(authentication);
         return authenticationMapper.toDto(savedAuthentication);

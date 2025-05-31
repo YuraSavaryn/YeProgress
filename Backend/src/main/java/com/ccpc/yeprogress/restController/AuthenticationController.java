@@ -1,7 +1,10 @@
 package com.ccpc.yeprogress.restController;
 
 import com.ccpc.yeprogress.dto.AuthenticationDTO;
+import com.ccpc.yeprogress.model.User;
+import com.ccpc.yeprogress.repository.UserRepository;
 import com.ccpc.yeprogress.service.AuthenticationService;
+import com.ccpc.yeprogress.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,9 +14,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/authentications")
 public class AuthenticationController {
+    private final AuthenticationService authenticationService;
+    private final UserService userService;
 
     @Autowired
-    private AuthenticationService authenticationService;
+    public AuthenticationController(AuthenticationService authenticationService, UserService userService) {
+        this.authenticationService = authenticationService;
+        this.userService = userService;
+    }
 
     @PostMapping
     public ResponseEntity<AuthenticationDTO> createAuthentication(@RequestBody AuthenticationDTO authenticationDTO) {
@@ -21,9 +29,10 @@ public class AuthenticationController {
         return ResponseEntity.ok(createdAuthentication);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<AuthenticationDTO> getAuthenticationById(@PathVariable Long id) {
-        AuthenticationDTO authenticationDTO = authenticationService.getAuthenticationById(id);
+    @GetMapping("/{uid}")
+    public ResponseEntity<AuthenticationDTO> getAuthenticationByUserId(@PathVariable String uid) {
+        User user = userService.getUserByFirebaseId(uid);
+        AuthenticationDTO authenticationDTO = authenticationService.getAuthenticationByUserId(user.getUserId());
         return ResponseEntity.ok(authenticationDTO);
     }
 
@@ -33,9 +42,12 @@ public class AuthenticationController {
         return ResponseEntity.ok(authentications);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<AuthenticationDTO> updateAuthentication(@PathVariable Long id, @RequestBody AuthenticationDTO authenticationDTO) {
-        AuthenticationDTO updatedAuthentication = authenticationService.updateAuthentication(id, authenticationDTO);
+    @PutMapping("/{uid}")
+    public ResponseEntity<AuthenticationDTO> updateAuthentication(@PathVariable String uid,
+                                                                  @RequestBody AuthenticationDTO authenticationDTO) {
+        User user = userService.getUserByFirebaseId(uid);
+        Long userId = user.getUserId();
+        AuthenticationDTO updatedAuthentication = authenticationService.updateAuthentication(userId, authenticationDTO);
         return ResponseEntity.ok(updatedAuthentication);
     }
 

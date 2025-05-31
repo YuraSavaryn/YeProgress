@@ -9,8 +9,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "Authentications")
 @Data
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Authentication {
@@ -18,9 +16,9 @@ public class Authentication {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long authenticationId;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "user_id")
-    private User userId;
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "method_id")

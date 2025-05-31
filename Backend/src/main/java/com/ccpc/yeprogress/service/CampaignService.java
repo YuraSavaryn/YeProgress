@@ -3,6 +3,7 @@ package com.ccpc.yeprogress.service;
 import com.ccpc.yeprogress.dto.CampaignDTO;
 import com.ccpc.yeprogress.mapper.CampaignMapper;
 import com.ccpc.yeprogress.model.Campaign;
+import com.ccpc.yeprogress.model.User;
 import com.ccpc.yeprogress.repository.CampaignRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,8 +26,9 @@ public class CampaignService {
         this.scrapingService = scrapingService;
     }
 
-    public CampaignDTO createCampaign(CampaignDTO campaignDTO) {
+    public CampaignDTO createCampaign(User user, CampaignDTO campaignDTO) {
         Campaign campaign = campaignMapper.toEntity(campaignDTO);
+        campaign.setUser(user);
         Campaign savedCampaign = campaignRepository.save(campaign);
 
         // Якщо є bankaUrl, спробуємо відразу оновити дані
@@ -41,6 +43,12 @@ public class CampaignService {
         Campaign campaign = campaignRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Campaign not found"));
         return campaignMapper.toDto(campaign);
+    }
+
+    public List<CampaignDTO> getCampaignsByUserId(Long userId) {
+        return campaignRepository.findByUser_UserId(userId).stream()
+                .map(campaignMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     public List<CampaignDTO> getAllCampaigns() {

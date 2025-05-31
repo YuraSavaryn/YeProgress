@@ -21,19 +21,28 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
-    public UserDTO createUser(UserDTO UserDTO) {
-        User user = userMapper.toEntity(UserDTO);
+    public UserDTO createUser(UserDTO userDTO) {
+        User user = userMapper.toEntity(userDTO);
         User savedUser = userRepository.save(user);
         return userMapper.toDto(savedUser);
     }
 
-    public UserDTO getUserById(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return userMapper.toDto(user);
+    public User getUserFromDTO(UserDTO userDTO) {
+        return userMapper.toEntity(userDTO);
     }
 
-    public UserDTO getUserByFirebaseId(String firebaseId) {
+    public User getUserById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return user;
+    }
+
+    public User getUserByFirebaseId(String firebaseId) {
+        return userRepository.findByFirebaseId(firebaseId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public UserDTO getUserDTOByFirebaseId(String firebaseId) {
         User user = userRepository.findByFirebaseId(firebaseId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return userMapper.toDto(user);
@@ -45,24 +54,20 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public UserDTO updateUser(Long id, UserDTO UserDTO) {
+    public UserDTO updateUser(Long id, UserDTO userDTO) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        userMapper.updateEntityFromDto(UserDTO, user); // Використовуємо MapStruct для оновлення
+        userMapper.updateEntityFromDto(userDTO, user); // Використовуємо MapStruct для оновлення
         User savedUser = userRepository.save(user);
         return userMapper.toDto(savedUser);
     }
 
-    public UserDTO updateUser(String firebaseId, UserDTO UserDTO) {
+    public UserDTO updateUser(String firebaseId, UserDTO userDTO) {
         User user = userRepository.findByFirebaseId(firebaseId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        userMapper.updateEntityFromDto(UserDTO, user); // Використовуємо MapStruct для оновлення
+        userMapper.updateEntityFromDto(userDTO, user); // Використовуємо MapStruct для оновлення
         User savedUser = userRepository.save(user);
         return userMapper.toDto(savedUser);
-    }
-
-    public void deleteUser(Long id) {
-        userRepository.deleteById(id);
     }
 
     public void deleteUser(String firebaseId) {

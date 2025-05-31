@@ -1,6 +1,8 @@
 package com.ccpc.yeprogress.restController;
 
 import com.ccpc.yeprogress.dto.CampaignDTO;
+import com.ccpc.yeprogress.model.User;
+import com.ccpc.yeprogress.repository.UserRepository;
 import com.ccpc.yeprogress.service.CampaignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,13 +14,20 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/campaigns")
 public class CampaignController {
+    private final CampaignService campaignService;
+    private final UserRepository userRepository;
 
     @Autowired
-    private CampaignService campaignService;
+    public CampaignController(CampaignService campaignService, UserRepository userRepository) {
+        this.campaignService = campaignService;
+        this.userRepository = userRepository;
+    }
 
-    @PostMapping
-    public ResponseEntity<CampaignDTO> createCampaign(@RequestBody CampaignDTO campaignDTO) {
-        CampaignDTO createdCampaign = campaignService.createCampaign(campaignDTO);
+    @PostMapping("/{uid}")
+    public ResponseEntity<CampaignDTO> createCampaign(@PathVariable String uid, @RequestBody CampaignDTO campaignDTO) {
+        User user = userRepository.findByFirebaseId(uid)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        CampaignDTO createdCampaign = campaignService.createCampaign(user, campaignDTO);
         return ResponseEntity.ok(createdCampaign);
     }
 
@@ -26,6 +35,14 @@ public class CampaignController {
     public ResponseEntity<CampaignDTO> getCampaignById(@PathVariable Long id) {
         CampaignDTO campaignDTO = campaignService.getCampaignById(id);
         return ResponseEntity.ok(campaignDTO);
+    }
+
+    @GetMapping("/user/{uid}")
+    public ResponseEntity<List<CampaignDTO>> getUserCampaigns(@PathVariable String uid) {
+        User user = userRepository.findByFirebaseId(uid)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        List<CampaignDTO> campaigns = campaignService.getCampaignsByUserId(user.getUserId());
+        return ResponseEntity.ok(campaigns);
     }
 
     @GetMapping
