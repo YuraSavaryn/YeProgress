@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import auth from "../auth";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import "../index.css";
 import Header from "./Header";
 import Footer from "./Footer";
@@ -10,45 +11,62 @@ const CreateProjectPage = () => {
   const [newProject, setNewProject] = useState({
     title: "",
     description: "",
-    goal: "",
+    goalAmount: "",      // Змінено назву під CampaignDTO
+    currentAmount: 0,    // Стартуємо з 0
     category: "Відбудова",
-    monoLink: "",
+    bankaUrl: "",        // Змінено з monoLink
     image: null,
+    imageUrl: "",
+    status: "active",    // Можеш замінити на інший статус, якщо потрібно
+    approxDeadline: "",  // Додано для дати дедлайну
   });
-  const [imagePreview, setImagePreview] = useState(null); // Для попереднього перегляду
+
+  const [imagePreview, setImagePreview] = useState(null);
   const categories = ["Відбудова", "Стартап", "Інновації", "Освіта"];
 
   const handleCreateProject = async () => {
     try {
       // Валідація
-      if (!newProject.title || !newProject.description || !newProject.goal) {
+      if (!newProject.title || !newProject.description || !newProject.goalAmount) {
         throw new Error("Заповніть усі обов’язкові поля!");
       }
 
       const user = auth.currentUser;
       if (!user) throw new Error("Користувач не авторизований");
 
-      const username = "admin";
-      const password = "admin";
-      const base64Credentials = btoa(`${username}:${password}`);
+      let imageUrl = "https://placehold.co/600x400?text=No+Image";
 
-      const response = await fetch(`http://localhost:8080/api/campaigns`, {
+      if (newProject.image) {
+        const storage = getStorage();
+        const storageRef = ref(storage, `project_images/${user.uid}/${newProject.image.name}`);
+        await uploadBytes(storageRef, newProject.image);
+        imageUrl = await getDownloadURL(storageRef);
+      } else if (newProject.imageUrl) {
+        imageUrl = newProject.imageUrl;
+      }
+
+      const token = await user.getIdToken();
+
+      const body = {
+        title: newProject.title,
+        description: newProject.description,
+        goalAmount: Number(newProject.goalAmount),
+        currentAmount: 0,
+        category: newProject.category,
+        bankaUrl: newProject.bankaUrl,
+        status: newProject.status ?? "Активний",
+        approxDeadline: newProject.approxDeadline ? new Date(newProject.approxDeadline).toISOString() : null,
+        createdDate: new Date().toISOString(),
+        firebaseId: user.uid,
+      };
+
+      const response = await fetch(`http://localhost:8080/api/campaigns/${user.uid}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Basic ${base64Credentials}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          title: newProject.title,
-          description: newProject.description,
-          goal: Number(newProject.goal) || 0,
-          category: newProject.category,
-          monoLink: newProject.monoLink,
-          image: newProject.image || "https://placehold.co/600x400?text=No+Image",
-          firebaseId: user.uid,
-          createdAt: new Date().toISOString(),
-          collected: 0,
-        }),
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
@@ -57,8 +75,20 @@ const CreateProjectPage = () => {
       }
 
       await response.json();
+
+// Додаємо запит на campaign-images
+      await fetch("http://localhost:8080/api/campaign-images", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ imgUrl: imageUrl }),
+      });
+
       alert("Проєкт успішно створено!");
       navigate("/projects");
+
     } catch (error) {
       console.error("Error creating project:", error.message);
       alert(`Помилка: ${error.message}`);
@@ -72,9 +102,9 @@ const CreateProjectPage = () => {
         alert("Файл занадто великий! Максимальний розмір: 2 МБ");
         return;
       }
+      setNewProject({ ...newProject, image: file }); // Зберігаємо файл, а не Data URL
       const reader = new FileReader();
       reader.onloadend = () => {
-        setNewProject({ ...newProject, image: reader.result });
         setImagePreview(reader.result);
       };
       reader.readAsDataURL(file);
@@ -88,6 +118,7 @@ const CreateProjectPage = () => {
         <div className="container">
           <div className="create-project-form">
             <h3>Створити новий проєкт</h3>
+
             <div className="form-group">
               <label>Назва проєкту</label>
               <input
@@ -97,6 +128,7 @@ const CreateProjectPage = () => {
                 placeholder="Введіть назву проєкту"
               />
             </div>
+
             <div className="form-group">
               <label>Опис проєкту</label>
               <textarea
@@ -105,16 +137,18 @@ const CreateProjectPage = () => {
                 placeholder="Опишіть ваш проєкт"
               />
             </div>
+
             <div className="form-row">
               <div className="form-group">
                 <label>Грошова ціль збору (₴)</label>
                 <input
                   type="number"
-                  value={newProject.goal}
-                  onChange={(e) => setNewProject({ ...newProject, goal: e.target.value })}
+                  value={newProject.goalAmount}
+                  onChange={(e) => setNewProject({ ...newProject, goalAmount: e.target.value })}
                   placeholder="Введіть суму"
                 />
               </div>
+
               <div className="form-group">
                 <label>Категорія</label>
                 <select
@@ -129,15 +163,26 @@ const CreateProjectPage = () => {
                 </select>
               </div>
             </div>
+
             <div className="form-group">
               <label>Посилання на mono-банку</label>
               <input
                 type="url"
-                value={newProject.monoLink}
-                onChange={(e) => setNewProject({ ...newProject, monoLink: e.target.value })}
+                value={newProject.bankaUrl}
+                onChange={(e) => setNewProject({ ...newProject, bankaUrl: e.target.value })}
                 placeholder="https://send.monobank.ua/..."
               />
             </div>
+
+            <div className="form-group">
+              <label>Приблизний дедлайн</label>
+              <input
+                type="date"
+                value={newProject.approxDeadline}
+                onChange={(e) => setNewProject({ ...newProject, approxDeadline: e.target.value })}
+              />
+            </div>
+
             <div className="form-group">
               <label>Зображення проєкту</label>
               <input type="file" accept="image/*" onChange={handleImageUpload} />
@@ -149,6 +194,17 @@ const CreateProjectPage = () => {
                 />
               )}
             </div>
+
+            <div className="form-group">
+              <label>Або вставте посилання на зображення</label>
+              <input
+                type="url"
+                value={newProject.imageUrl}
+                onChange={(e) => setNewProject({ ...newProject, imageUrl: e.target.value })}
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+
             <div className="form-buttons">
               <button onClick={handleCreateProject} className="btn btn-first">
                 Опублікувати

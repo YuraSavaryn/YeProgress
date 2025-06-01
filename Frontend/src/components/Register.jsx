@@ -44,7 +44,6 @@ const Register = () => {
 
       await sendEmailVerification(newUser);
 
-      // Твоє API-запит сюди (можеш лишити як є)
       const username = "admin";
       const password2 = "admin";
       const base64Credentials = btoa(`${username}:${password2}`);

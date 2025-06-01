@@ -54,11 +54,30 @@ const ProjectsPage = () => {
      }
 
       const data = await response.json();
-      const normalizedData = Array.isArray(data) ? data.map(project => ({
-          ...project,
-          collected: project.collected ?? 0,
-          goal: project.goal ?? 0
-        })) : [];
+
+      const normalizedData = Array.isArray(data) ? data.map((project, index) => (index = 9,{
+        id: index + 1,  // або project.id якщо є
+        title: project.title,
+        description: project.description,
+        goal: project.goalAmount ?? 0,
+        collected: project.currentAmount ?? 0,
+        monoLink: project.bankaUrl ?? "",
+        image: project.imgUrl ?? "https://placehold.co/600x400?text=No+Image",
+        category: "Відбудова"
+      })) : [];
+
+        console.log(normalizedData);
+
+              data.forEach((project, index) => {
+              console.log(`--- Проєкт ${index + 1} ---`);
+              console.log("title:", project.title);
+              console.log("description:", project.description);
+              console.log("goal:", project.goalAmount);
+              console.log("collected:", project.currentAmount);
+              console.log("category:", project.category);
+              console.log("image:", project.image);
+              console.log("monoLink:", project.bankaUrl);
+            });
       setProjects(normalizedData);
     } catch (error) {
       console.error("Error fetching projects:", error.message);

@@ -4,11 +4,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaInstagram, FaFacebook, FaTwitter, FaLinkedin } from "react-icons/fa";
 import auth from "../auth";
 import Header from "./Header";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import "../index.css";
 
 const MyProfile = () => {
   const [editMode, setEditMode] = useState(false);
   const navigate = useNavigate();
+  const [previewAvatar, setPreviewAvatar] = useState(null);
   const [profile, setProfile] = useState({
     name: "Іван Петренко",
     email: "ivan.petrenko@example.com",
@@ -22,41 +24,7 @@ const MyProfile = () => {
     LinkedIn: "",
   });
 
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      title: "Модернізація енергетичної мережі",
-      description:
-        "Проєкт з відновлення та модернізації енергетичної інфраструктури в Харківській області з впровадженням сучасних технологій.",
-      category: "Відбудова",
-      goal: 5000000,
-      collected: 1250000,
-      image: "https://gwaramedia.com/wp-content/uploads/2022/07/tecz-51.jpg",
-      active: "Активний",
-    },
-    {
-      id: 2,
-      title: "EcoFarm - розумне сільське господарство",
-      description:
-        "Інноваційна система моніторингу та управління сільськогосподарськими угіддями з використанням ІоТ та штучного інтелекту.",
-      category: "Стартап",
-      goal: 2500000,
-      collected: 750000,
-      image: "https://hub.kyivstar.ua/assets/cms/uploads/biznes_tehnologii_jpg_a81a98106e.webp",
-      active: "Активний",
-    },
-    {
-      id: 3,
-      title: "Сучасна клініка в Миколаєві",
-      description:
-        "Проєкт з будівництва та обладнання сучасного медичного центру для забезпечення якісної медичної допомоги.",
-      category: "Відбудова",
-      goal: 10000000,
-      collected: 3200000,
-      image: "https://vidnova.ua/wp-content/uploads/2024/03/IMG_2318-HDR-2-scaled.jpg",
-      active: "Активний",
-    },
-  ]);
+  const [projects, setProjects] = useState([]);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -69,7 +37,6 @@ const MyProfile = () => {
       const fetchUserProfile = async () => {
         try {
           const userId = user.uid;
-          console.log("Fetching profile for user:", userId);
           const username = "admin";
           const password = "admin";
           const base64Credentials = btoa(`${username}:${password}`);
@@ -90,7 +57,7 @@ const MyProfile = () => {
           const data = await response.json();
           setProfile((prev) => ({
             ...prev,
-            name: data.name || prev.name,
+            name: `${data.name || ""} ${data.surname || ""}`.trim() || prev.name,
             email: data.email || prev.email,
             phone: data.phone || prev.phone,
             bio: data.bio || prev.bio,
@@ -101,6 +68,38 @@ const MyProfile = () => {
             Twitter: data.Twitter || prev.Twitter,
             LinkedIn: data.LinkedIn || prev.LinkedIn,
           }));
+
+          const projectsResponse = await fetch(`http://localhost:8080/api/campaigns/user/${userId}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Basic ${base64Credentials}`,
+            },
+          });
+
+          if (!projectsResponse.ok) {
+            const errorText = await projectsResponse.text();
+            throw new Error(`HTTP error! Status: ${projectsResponse.status}, Message: ${errorText}`);
+          }
+
+          const projectData = await projectsResponse.json();
+          console.log("Fetched projects:", projectData);
+          const normalizedProjects = projectData.map((proj, index) => ({
+            id: index,
+            title: proj.title,
+            description: proj.description,
+            image: proj.bankaUrl || "https://via.placeholder.com/300x200",
+            collected: Number(proj.currentAmount),
+            goal: Number(proj.goalAmount),
+            category: "Інше",
+            active: proj.status === "IN_PROGRESS" ? "Активний" : "Неактивний",
+            createdDate: proj.createdDate,
+            approxDeadline: proj.approxDeadline,
+          }));
+
+          setProjects(normalizedProjects);
+
+
         } catch (error) {
           console.error("Error fetching user profile:", error.message);
         }
@@ -130,21 +129,79 @@ const MyProfile = () => {
     setProfile((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSaveProfile = () => {
-    setEditMode(false);
-    // Add logic to save profile to server here
-  };
+  const handleSaveProfile = async () => {
+  try {
+    const user = auth.currentUser;
 
-  const handleAvatarChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfile((prev) => ({ ...prev, avatar: reader.result }));
-      };
-      reader.readAsDataURL(file);
+    if (!user) {
+      alert("Користувач не авторизований");
+      return;
     }
-  };
+
+    const userId = user.uid;
+    const username = "admin";
+    const password = "admin";
+    const base64Credentials = btoa(`${username}:${password}`);
+
+    console.log("Sending profile data:", profile);
+
+    const editResponse = await fetch(`http://localhost:8080/api/users/${userId}`, {
+      method: "PUT", 
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Basic ${base64Credentials}`,
+      },
+      body: JSON.stringify(profile),
+    });
+
+    if (!editResponse.ok) {
+      const errorText = await editResponse.text();
+      throw new Error(`HTTP error! Status: ${editResponse.status}, Message: ${errorText}`);
+    }
+
+    const updatedProfile = await editResponse.json();
+    console.log("Updated profile response:", updatedProfile);
+
+    setProfile((prev) => ({
+      ...prev,
+      ...updatedProfile,
+    }));
+
+      setEditMode(false);
+      alert("Профіль успішно оновлено!");
+    } catch (error) {
+      console.error("Помилка при оновленні профілю:", error.message);
+    alert("Не вдалося оновити профіль. Спробуйте пізніше.");
+      }
+    };
+
+
+      const handleAvatarChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const previewUrl = URL.createObjectURL(file);
+        setPreviewAvatar(previewUrl);
+
+        try {
+          const user = auth.currentUser;
+          if (!user) throw new Error("Користувач не авторизований");
+
+          const storage = getStorage();
+          const storageRef = ref(storage, `avatars/${user.uid}`);
+          
+          await uploadBytes(storageRef, file);
+          const url = await getDownloadURL(storageRef);
+
+          setProfile((prev) => ({ ...prev, avatar: url }));
+          setPreviewAvatar(null);
+        } catch (error) {
+          console.error("Помилка при завантаженні аватара:", error);
+          alert("Не вдалося завантажити аватар");
+        }
+      };
+
+
 
   return (
     <>
@@ -153,7 +210,7 @@ const MyProfile = () => {
         <div className="profile-header">
           <div className="profile-top">
             <div className="avatar-container">
-              <img src={profile.avatar} alt="Аватар" className="avatar" />
+              <img src={previewAvatar || profile.avatar} alt="Аватар" className="avatar" />
               {editMode && (
                 <input
                   type="file"
@@ -296,8 +353,8 @@ const MyProfile = () => {
                           ></div>
                         </div>
                         <div className="progress-info">
-                          <span>Зібрано: {project.collected.toLocaleString()} ₴</span>
-                          <span>Ціль: {project.goal.toLocaleString()} ₴</span>
+                          <p>Зібрано: {project.collected ? project.collected.toLocaleString() : "0"} ₴</p>
+                          <p>Ціль: {project.goal ? project.goal.toLocaleString() : "0"} ₴</p>
                         </div>
                       </div>
                       <Link to={`/project/edit/${project.id}`} className="btn btn-primary">
