@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthenticationMethodDTO {
+    private Long authMethodId;
     private String authMethodName;
 
 }

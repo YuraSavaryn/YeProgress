@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthenticationDTO {
+    private Long authenticationId;
     private String methodName;
     private String statusName;
     private String externalAuthId;

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CampaignImagesDTO {
+    private Long campaignImageId;
     private String imgUrl;
 
 }
