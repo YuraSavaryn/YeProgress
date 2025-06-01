@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class CampaignImagesDTO {
     private Long campaignImageId;
     private String imgUrl;
-
+    private Long campaignId;
 }

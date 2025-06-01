@@ -85,7 +85,7 @@ const MyProfile = () => {
           const projectData = await projectsResponse.json();
           console.log("Fetched projects:", projectData);
           const normalizedProjects = projectData.map((proj, index) => ({
-            id: index,
+            id: proj.campaignId ?? index,
             title: proj.title,
             description: proj.description,
             image: proj.bankaUrl || "https://via.placeholder.com/300x200",
@@ -97,6 +97,7 @@ const MyProfile = () => {
             approxDeadline: proj.approxDeadline,
           }));
 
+          console.log("IDs проектів:", normalizedProjects.map(p => p.id));
           setProjects(normalizedProjects);
 
 

@@ -76,7 +76,6 @@ const CreateProjectPage = () => {
 
       await response.json();
 
-// Додаємо запит на campaign-images
       await fetch("http://localhost:8080/api/campaign-images", {
         method: "POST",
         headers: {

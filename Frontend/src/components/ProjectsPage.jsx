@@ -35,54 +35,83 @@ const ProjectsPage = () => {
 
   useEffect( () => {
     const fetchProjects = async () => {
-      try {
+    try {
       const username = "admin";
       const password = "admin";
       const base64Credentials = btoa(`${username}:${password}`);
 
+      // 1. Запит на всі кампанії
       const response = await fetch(`http://localhost:8080/api/campaigns`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Basic ${base64Credentials}`,
         },  
-      })
+      });
 
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
-     }
+      }
 
-      const data = await response.json();
+      const campaigns = await response.json();
 
-      const normalizedData = Array.isArray(data) ? data.map((project, index) => (index = 9,{
-        id: index + 1,  // або project.id якщо є
+      // 2. Для кожної кампанії зробити запит на зображення
+      const campaignsWithImages = await Promise.all(
+        campaigns.map(async (campaign) => {
+          try {
+            const imagesResponse = await fetch(`http://localhost:8080/api/campaign-images/${campaign.campaignId}`, {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Basic ${base64Credentials}`,
+              }
+            });
+
+            if (!imagesResponse.ok) {
+              // Якщо зображення не знайдено або помилка, повертати дефолтне
+              return {
+                ...campaign,
+                imgUrl: "https://placehold.co/600x400?text=No+Image"
+              };
+            }
+
+            const images = await imagesResponse.json();
+
+            // Припустимо, що тобі потрібно перше зображення, або обробляєш всі
+            const firstImageUrl = images.length > 0 ? images[0].url : "https://placehold.co/600x400?text=No+Image";
+
+            return {
+              ...campaign,
+              imgUrl: firstImageUrl,
+            };
+          } catch (e) {
+            return {
+              ...campaign,
+              imgUrl: "https://placehold.co/600x400?text=No+Image"
+            };
+          }
+        })
+      );
+
+      // 3. Нормалізуємо і записуємо у стан
+      const normalizedData = campaignsWithImages.map((project, index) => ({
+        id: project.campaignId ?? index + 1,
         title: project.title,
         description: project.description,
         goal: project.goalAmount ?? 0,
         collected: project.currentAmount ?? 0,
         monoLink: project.bankaUrl ?? "",
-        image: project.imgUrl ?? "https://placehold.co/600x400?text=No+Image",
-        category: "Відбудова"
-      })) : [];
+        image: project.imgUrl,
+        category: "Відбудова" // або якщо є в даних - project.category
+      }));
 
-        console.log(normalizedData);
-
-              data.forEach((project, index) => {
-              console.log(`--- Проєкт ${index + 1} ---`);
-              console.log("title:", project.title);
-              console.log("description:", project.description);
-              console.log("goal:", project.goalAmount);
-              console.log("collected:", project.currentAmount);
-              console.log("category:", project.category);
-              console.log("image:", project.image);
-              console.log("monoLink:", project.bankaUrl);
-            });
       setProjects(normalizedData);
+
     } catch (error) {
-      console.error("Error fetching projects:", error.message);
+      console.error("Error fetching projects or images:", error.message);
     }
-    }
+  };
     fetchProjects();
   }, []);
 

@@ -23,7 +23,7 @@ const ProjectDetail = () => {
 
         const response = await fetch(`http://localhost:8080/api/campaigns/${id}`, {
           method: "GET",
-          headers: {
+          headers: {  
             "Content-Type": "application/json",
             Authorization: `Basic ${base64Credentials}`,
           },
@@ -40,6 +40,7 @@ const ProjectDetail = () => {
           currentAmount: data.currentAmount ?? 0,
           goalAmount: data.goalAmount ?? 0,
           image: data.image || "https://placehold.co/600x400?text=No+Image",
+          bankaUrl: data.bankaUrl ?? "Користувач не залишив банки :(",
         });
 
         setLoading(false);
@@ -53,19 +54,104 @@ const ProjectDetail = () => {
     fetchProject();
   }, [id]);
 
-  const handleAddComment = () => {
-    if (newComment.trim() === "") return;
+  useEffect(() => {
+  const fetchComments = async () => {
+    const username = "admin";
+    const password = "admin";
+    const base64Credentials = btoa(`${username}:${password}`);
 
-    const comment = {
+    try {
+      const response = await fetch(`http://localhost:8080/api/campaign-comments/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${base64Credentials}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const formatted = data.map((c) => ({
+          id: c.commentId,
+          text: c.content,
+          author: c.userName || "Анонім",
+          date: new Date(c.createdAt).toLocaleString(),
+        }));
+        setComments(formatted);
+      }
+    } catch (err) {
+      console.error("Помилка при завантаженні коментарів:", err.message);
+    }
+  };
+
+  fetchComments();
+}, [id]);
+
+
+  const handleAddComment = async () => {
+  if (newComment.trim() === "") return;
+
+  try {
+    if (!auth.currentUser) {
+      alert("Будь ласка, увійдіть, щоб залишити коментар.");
+      return;
+    }
+    const userUid = auth.currentUser;
+
+    const username = "admin";
+    const password = "admin";
+    const base64Credentials = btoa(`${username}:${password}`);
+
+    const userResponse = await fetch(`http://localhost:8080/api/users/${userUid.uid}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Basic ${base64Credentials}`,
+      },
+    });
+
+    if (!userResponse.ok) {
+      throw new Error(`Не вдалося отримати користувача`);
+    }
+
+    const userData = await userResponse.json();
+    const userId = userData.id;
+
+    const commentPayload = {
+      userId: userId,
+      campaignId: parseInt(id),
+      content: newComment,
+      createdAt: new Date().toISOString(),
+    };
+
+    const response = await fetch("http://localhost:8080/api/campaign-comments", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Basic ${base64Credentials}`,
+      },
+      body: JSON.stringify(commentPayload),
+    });
+
+    if (!response.ok) {
+      throw new Error("Не вдалося надіслати коментар");
+    }
+
+    const addedComment = {
       id: Date.now(),
       text: newComment,
-      author: "Анонім",
+      author: userData.name ?? "Анонім",
       date: new Date().toLocaleString(),
     };
 
-    setComments([comment, ...comments]);
+    setComments([addedComment, ...comments]);
     setNewComment("");
-  };
+
+  } catch (err) {
+    console.error("Помилка при додаванні коментаря:", err.message);
+    alert("Не вдалося надіслати коментар.");
+  }
+};
+
 
   if (loading) return <div className="loading">Завантаження...</div>;
   if (error) return <div className="error">Помилка: {error}</div>;
@@ -76,7 +162,7 @@ const ProjectDetail = () => {
   return (
     <>
       <Header />
-      <div className="project-page">
+      <div className="project-page project-detail-page">
         <div className="container">
           <div className="project-image-container">
             <img src={project.image} alt={project.title} className="project-image styled-img" />
@@ -99,44 +185,55 @@ const ProjectDetail = () => {
               </div>
             </div>
 
+            <div className="project-banka">
+              <h3>Банка: </h3>
+              <p>{project.bankaUrl}</p>
+            </div>
+
             <div className="project-description">
               <h3>Опис проєкту</h3>
               <p>{project.description}</p>
             </div>
 
-            <div className="project-actions">
+            <div className="project-actions project-detail-actions">
               <button
                 onClick={() => navigate(`/project/edit/${id}`)}
-                className="btn btn-primary"
+                className="btn btn-first project-detail-btn"
               >
                 Редагувати
               </button>
-              <button onClick={() => navigate("/projects")} className="btn btn-secondary">
+              <button
+                onClick={() => navigate("/projects")}
+                className="btn btn-second project-detail-btn"
+              >
                 Назад до проєктів
               </button>
             </div>
 
-            <div className="project-comments styled-comments">
+            <div className="project-comments project-detail-comments">
               <h3>Коментарі</h3>
 
-              <div className="comment-form">
+              <div className="comment-form project-detail-comment-form">
                 <textarea
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   placeholder="Залиште свій коментар..."
                   rows={3}
-                  className="comment-textarea"
+                  className="comment-textarea project-detail-textarea"
                 />
-                <button className="btn btn-primary mt-2" onClick={handleAddComment}>
+                <button
+                  className="btn btn-first project-detail-comment-btn"
+                  onClick={handleAddComment}
+                >
                   Додати коментар
                 </button>
               </div>
 
-              <ul className="comment-list mt-4">
-                {comments.length === 0 && <li>Поки що немає коментарів.</li>}
+              <ul className="comment-list project-detail-comment-list">
+                {comments.length === 0 && <li className="project-detail-comment-item">Поки що немає коментарів.</li>}
                 {comments.map((comment) => (
-                  <li key={comment.id} className="comment-item mb-2">
-                    <div className="comment-meta">
+                  <li key={comment.id} className="comment-item project-detail-comment-item">
+                    <div className="comment-meta project-detail-comment-meta">
                       <strong>{comment.author}</strong> — <small>{comment.date}</small>
                     </div>
                     <div>{comment.text}</div>
