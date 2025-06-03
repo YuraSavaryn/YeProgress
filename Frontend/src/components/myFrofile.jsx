@@ -54,6 +54,14 @@ const MyProfile = () => {
             throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
           }
 
+        const sampleImages = [
+          "https://vechirniy.kyiv.ua/uploads/2022/12/16/photo_20221216_122956.jpg",
+          "https://f.discover.ua/location/2071/ruE82.jpg",
+          "https://funtime.kiev.ua/u/i/gallery/2021/05/park-imeni-shevchenko-6-609c2c85bd7cd.jpg",
+          "https://images.prom.ua/2272683959_rgb-korol-16yadergtx108032gb.jpg",
+          "https://www.finradnyk.site/wp-content/uploads/2023/08/startap.jpg"
+        ];
+
           const data = await response.json();
           setProfile((prev) => ({
             ...prev,
@@ -88,11 +96,13 @@ const MyProfile = () => {
             id: proj.campaignId ?? index,
             title: proj.title,
             description: proj.description,
-            image: proj.bankaUrl || "https://via.placeholder.com/300x200",
+            image: proj.imgUrl && proj.imgUrl !== "https://placehold.co/600x400?text=No+Image"
+          ? proj.imgUrl
+          : sampleImages[index % sampleImages.length],
             collected: Number(proj.currentAmount),
             goal: Number(proj.goalAmount),
             category: "Інше",
-            active: proj.status === "IN_PROGRESS" ? "Активний" : "Неактивний",
+            active: proj.status === "IN_PROGRESS" ? "Активний" : "Активний",
             createdDate: proj.createdDate,
             approxDeadline: proj.approxDeadline,
           }));

@@ -94,7 +94,16 @@ const ProjectsPage = () => {
         })
       );
 
-      // 3. Нормалізуємо і записуємо у стан
+
+
+      const sampleImages = [
+        "https://vechirniy.kyiv.ua/uploads/2022/12/16/photo_20221216_122956.jpg",
+        "https://f.discover.ua/location/2071/ruE82.jpg",
+        "https://funtime.kiev.ua/u/i/gallery/2021/05/park-imeni-shevchenko-6-609c2c85bd7cd.jpg",
+        "https://images.prom.ua/2272683959_rgb-korol-16yadergtx108032gb.jpg",
+        "https://www.finradnyk.site/wp-content/uploads/2023/08/startap.jpg"
+      ];
+
       const normalizedData = campaignsWithImages.map((project, index) => ({
         id: project.campaignId ?? index + 1,
         title: project.title,
@@ -102,9 +111,12 @@ const ProjectsPage = () => {
         goal: project.goalAmount ?? 0,
         collected: project.currentAmount ?? 0,
         monoLink: project.bankaUrl ?? "",
-        image: project.imgUrl,
-        category: "Відбудова" // або якщо є в даних - project.category
+        image: project.imgUrl && project.imgUrl !== "https://placehold.co/600x400?text=No+Image"
+          ? project.imgUrl
+          : sampleImages[index % sampleImages.length],
+        category: "Відбудова"
       }));
+
 
       setProjects(normalizedData);
 
@@ -260,7 +272,7 @@ const ProjectsPage = () => {
             {filteredProjects.map(project => (
               <div key={project.id} className="project-card">
                 <div className="project-image">
-                  <img src={project.image} alt={project.title} />
+                  <img src={project.image} alt={project.title}/>
                 </div>
                 <div className="project-content">
                   <div className="project-category">

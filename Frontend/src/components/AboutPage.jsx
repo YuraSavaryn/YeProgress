@@ -4,34 +4,34 @@ import Footer from "./Footer";
 import "../index.css";
 
 const AboutPage = () => {
-  const teamMembers = [
+const teamMembers = [
     {
-      name: "Юра",
-      position: "CEO & Головний Мрійник",
-      description: "Колись мріяв стати космонавтом, але зрозумів, що будувати ракети для української економіки набагато цікавіше. Обожнює каву (п'є по 7 чашок на день), грає на укулеле та вірить, що кожен стартап може змінити світ. У вільний час збирає LEGO і розповідає всім, що це для 'розвитку креативного мислення'.",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face",
-      funFact: "🚀 Має колекцію з 47 ракет LEGO"
+      name: "Юрій Саварин",
+      position: "Team Lead",
+      description: "Керівник команди з глибоким розумінням архітектури проекту. Юрій відповідає за організацію командної роботи, координацію процесів розробки та стратегічне планування. Також займається налаштуванням серверної частини та розробкою складної логіки для взаємодії з базою даних, забезпечуючи стабільність та масштабованість системи.",
+      avatar: "https://i.ibb.co/G3vhQZfZ/yura.jpg",
+      funFact: "🎯 Фокусується на оптимізації архітектури проекту"
     },
     {
-      name: "Сергій",
-      position: "CTO & Технічний Чарівник",
-      description: "Програміст з душею поета та руками, що можуть налагодити будь-який код (і кавомашину в офісі). Спить з відкритим MacBook, бачить сни мовою Python та щиро вважає, що найкращі ідеї приходять о 3 ранку. Колекціонує вінтажні клавіатури та знає напам'ять всі шоткати VS Code.",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face",
-      funFact: "⌨️ Найшвидший друкарик офісу - 127 слів/хв"
+      name: "Сергій Ярема",
+      position: "UX/UI Designer",
+      description: "Відповідальний за створення інтуїтивного та привабливого користувацького досвіду. Сергій проводить детальний аналіз конкурентних рішень, розробляє дизайн-концепції та займається версткою сторінок. Його робота забезпечує високу якість користувацького інтерфейсу та відповідність сучасним стандартам веб-дизайну.",
+      avatar: "https://i.ibb.co/49nK9hM/serhiy.jpg",
+      funFact: "🎨 Спеціалізується на створенні адаптивних дизайн-систем"
     },
     {
-      name: "Іван",
-      position: "CMO & Король Контенту",
-      description: "Маркетолог, який може продати лід ескімосу, а ескімосу - обігрівач. Знає всі тренди соцмереж ще до того, як вони стануть трендами. Говорить емодзі краще за текстом, може створити вірусний мем за 5 хвилин та завжди знає, де найкраща піца в місті. Його інстаграм - це мистецтво.",
-      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop&crop=face",
-      funFact: "📱 Перший в Україні набрав 100К фоловерів в TikTok"
+      name: "Іван Омеляш",
+      position: "Frontend Developer",
+      description: "Експерт з розробки клієнтської частини додатку. Відповідає за реалізацію інтерактивних елементів, забезпечення адаптивності на всіх пристроях та функціональності користувацького інтерфейсу. Також спеціалізується на написанні ефективних API запитів на клієнтській частині для оптимальної взаємодії з сервером.",
+      avatar: "https://i.ibb.co/s97NFZdc/ivan.jpg",
+      funFact: "⚡ Оптимізує продуктивність frontend додатків"
     },
     {
-      name: "Назар",
-      position: "CFO & Фінансовий Ніндзя",
-      description: "Бачить числа там, де інші бачать хаос. Може розрахувати рентабельність інвестицій в умі, знає курс валют на завтра і завжди знайде гроші в бюджеті на корпоратив. Грає в шахи, читає фінансові звіти перед сном та робить найкращі Excel-таблиці у всесвіті. Його коронна фраза: 'А чи це рентабельно?'",
-      avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=300&h=300&fit=crop&crop=face",
-      funFact: "📊 Створив Excel-формулу, яка передбачає погоду"
+      name: "Назар Пироженко",
+      position: "Backend Developer",
+      description: "Відповідальний за серверну частину додатку та роботу з базами даних. Назар розробляє схеми баз даних, реалізує бізнес-логіку додатку та створює надійні API для взаємодії між клієнтською та серверною частинами. Його експертиза забезпечує стабільну роботу системи під навантаженням.",
+      avatar: "https://i.ibb.co/sptSR64T/nazar.jpg",
+      funFact: "🔧 Забезпечує надійність серверної інфраструктури"
     }
   ];
 
@@ -141,6 +141,218 @@ const AboutPage = () => {
         </section>
       </main>
       <Footer />
+
+      <style jsx>{`
+        .
+
+        .about-hero {
+          background: var(--gradient-bg);
+          padding: 6rem 0 4rem;
+          color: var(--light-text);
+          text-align: center;
+        }
+
+        .about-hero h1 {
+          font-size: 3rem;
+          margin-bottom: 1.5rem;
+          font-weight: 700;
+        }
+
+        .about-hero p {
+          font-size: 1.2rem;
+          max-width: 800px;
+          margin: 0 auto;
+          line-height: 1.6;
+          opacity: 0.95;
+        }
+
+        .mission-section {
+          padding: 5rem 9rem;
+          background-color: white;
+        }
+
+        .mission-content {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 4rem;
+          align-items: center;
+        }
+
+        .mission-text h2 {
+          font-size: 2.5rem;
+          color: var(--secondary-color);
+          margin-bottom: 2rem;
+          font-weight: 700;
+        }
+
+        .mission-text p {
+          font-size: 1.1rem;
+          line-height: 1.7;
+          color: #555;
+          margin-bottom: 1.5rem;
+        }
+
+        .mission-image img {
+          width: 100%;
+          border-radius: 15px;
+          box-shadow: var(--card-shadow);
+        }
+
+        .team-section {
+          padding: 5rem 9rem;
+          background-color: var(--light-bg);
+        }
+
+        .team-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(285px, 1fr));
+          gap: 0.8rem;
+          margin-top: 3rem;
+        }
+
+        .team-card {
+          background: white;
+          border-radius: 20px;
+          padding: 2rem;
+          box-shadow: var(--card-shadow);
+          transition: var(--hover-transition);
+          text-align: center;
+        }
+
+        .team-card:hover {
+          transform: translateY(-10px);
+          box-shadow: 0 15px 30px rgba(138, 104, 207, 0.2);
+        }
+
+        .team-avatar {
+          width: 120px;
+          height: 120px;
+          margin: 0 auto 1.5rem;
+          border-radius: 50%;
+          overflow: hidden;
+          border: 4px solid var(--light-color);
+        }
+
+        .team-avatar img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .team-info h3 {
+          font-size: 1.5rem;
+          color: var(--secondary-color);
+          margin-bottom: 0.5rem;
+          font-weight: 600;
+        }
+
+        .team-position {
+          color: var(--main-color);
+          font-weight: 500;
+          margin-bottom: 1rem;
+          font-size: 1rem;
+        }
+
+        .team-description {
+          color: #666;
+          line-height: 1.6;
+          margin-bottom: 1rem;
+          text-align: left;
+        }
+
+        .fun-fact {
+          background: var(--gradient-bg);
+          color: white;
+          padding: 0.5rem 1rem;
+          border-radius: 20px;
+          font-size: 0.9rem;
+          font-weight: 500;
+        }
+
+        .values-section {
+          padding: 5rem 9rem;
+          background-color: white;
+        }
+
+        .values-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 2rem;
+          margin-top: 3rem;
+        }
+
+        .value-card {
+          text-align: center;
+          padding: 2rem;
+          border-radius: 15px;
+          background: var(--light-bg);
+          transition: var(--hover-transition);
+        }
+
+        .value-card:hover {
+          transform: translateY(-5px);
+          box-shadow: var(--card-shadow);
+        }
+
+        .value-icon {
+          font-size: 3rem;
+          margin-bottom: 1rem;
+        }
+
+        .value-card h3 {
+          color: var(--secondary-color);
+          margin-bottom: 1rem;
+          font-weight: 600;
+        }
+
+        .value-card p {
+          color: #666;
+          line-height: 1.6;
+        }
+
+        .stats-section {
+          padding: 4rem 9rem;
+          background: var(--gradient-bg);
+          color: white;
+        }
+
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 2rem;
+          text-align: center;
+        }
+
+        .stat-number {
+          font-size: 3rem;
+          font-weight: 700;
+          margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+          font-size: 1.1rem;
+          opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+          .about-hero h1 {
+            font-size: 2.2rem;
+          }
+          
+          .mission-content {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+          }
+          
+          .team-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+      `}</style>
     </>
   );
 };

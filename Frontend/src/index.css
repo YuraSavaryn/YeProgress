@@ -2263,6 +2263,16 @@ footer a:hover {
   gap: 0.8rem;
 }
 
+.fun-fact {
+  background: var(--gradient-bg);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-top: auto;          
+}
+
 .contacts-page .fun-fact-item {
   background: rgba(255, 255, 255, 0.1);
   padding: 0.8rem 1.2rem;

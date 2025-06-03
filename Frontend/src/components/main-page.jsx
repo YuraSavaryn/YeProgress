@@ -48,7 +48,7 @@ const MainPage = () => {
             </div>
             <div className="buttons">
               <Link to="/projects" className="btn btn-first"> Інвестувати зараз </Link>
-              <Link to="#" className="btn btn-second"> <p>Дізнатися більше </p> </Link>
+              <Link to="/about" className="btn btn-second"> <p>Дізнатися більше </p> </Link>
             </div>
         </div>
       </section>
