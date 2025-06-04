@@ -28,8 +28,7 @@ public class CampaignImageService {
     }
 
     public CampaignImagesDTO getCampaignImageById(Long id) {
-        CampaignImage campaignImage = campaignImagesRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("CampaignImage not found"));
+        CampaignImage campaignImage = campaignImagesRepository.findByCampaign_CampaignId(id);
         return campaignImageMapper.toDto(campaignImage);
     }
 

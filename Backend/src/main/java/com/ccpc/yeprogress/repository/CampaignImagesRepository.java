@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CampaignImagesRepository extends JpaRepository<CampaignImage, Long> {
+    CampaignImage findByCampaign_CampaignId(Long campaignId);
 }
