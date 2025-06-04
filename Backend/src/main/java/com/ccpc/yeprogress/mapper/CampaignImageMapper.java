@@ -9,9 +9,11 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface CampaignImageMapper {
     @Mapping(target = "imgUrl", source = "imgUrl")
+    @Mapping(target = "campaignId", source = "campaign.campaignId")
     CampaignImagesDTO toDto(CampaignImage campaignImage);
 
     @Mapping(target = "imgUrl", source = "imgUrl")
+    @Mapping(target = "campaign.campaignId", source = "campaignId")
     CampaignImage toEntity(CampaignImagesDTO campaignImagesDTO);
 
     @Mapping(target = "campaignImageId", ignore = true)

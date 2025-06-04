@@ -10,6 +10,7 @@ import org.mapstruct.Named;
 
 @Mapper(componentModel = "spring")
 public interface CampaignMapper {
+    @Mapping(target = "campaignId", source = "campaignId")
     @Mapping(target = "title", source = "title")
     @Mapping(target = "description", source = "description")
     @Mapping(target = "bankaUrl", source = "bankaUrl")
@@ -20,6 +21,7 @@ public interface CampaignMapper {
     @Mapping(target = "status", source = "status", qualifiedByName = "enumToDisplayName")
     CampaignDTO toDto(Campaign campaign);
 
+    @Mapping(target = "campaignId", source = "campaignId")
     @Mapping(target = "title", source = "title")
     @Mapping(target = "description", source = "description")
     @Mapping(target = "bankaUrl", source = "bankaUrl")
