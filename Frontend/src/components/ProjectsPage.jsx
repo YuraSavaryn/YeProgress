@@ -5,17 +5,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 
 const ProjectsPage = () => {
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      title: "Модернізація енергетичної мережі",
-      description: "Проєкт з відновлення та модернізації енергетичної інфраструктури в Харківській області з впровадженням сучасних технологій.",
-      category: "Відбудова",
-      goal: 5000000,
-      collected: 1250000,
-      image: "https://gwaramedia.com/wp-content/uploads/2022/07/tecz-51.jpg"
-    }
-  ]);
+  const [projects, setProjects] = useState([]);
 
   const [categories, setCategories] = useState(["Всі", "Відбудова", "Стартап", "Інновації", "Освіта"]);
   const [selectedCategory, setSelectedCategory] = useState("Всі");

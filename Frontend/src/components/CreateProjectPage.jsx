@@ -11,14 +11,14 @@ const CreateProjectPage = () => {
   const [newProject, setNewProject] = useState({
     title: "",
     description: "",
-    goalAmount: "",      // Змінено назву під CampaignDTO
-    currentAmount: 0,    // Стартуємо з 0
+    goalAmount: "",      
+    currentAmount: 0,    
     category: "Відбудова",
-    bankaUrl: "",        // Змінено з monoLink
+    bankaUrl: "",        
     image: null,
     imageUrl: "",
-    status: "active",    // Можеш замінити на інший статус, якщо потрібно
-    approxDeadline: "",  // Додано для дати дедлайну
+    status: "active",    
+    approxDeadline: "",  
   });
 
   const [imagePreview, setImagePreview] = useState(null);
@@ -74,7 +74,7 @@ const CreateProjectPage = () => {
         throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
       }
 
-      await response.json();
+      const createdProj = await response.json();
 
       await fetch("http://localhost:8080/api/campaign-images", {
         method: "POST",
@@ -82,7 +82,7 @@ const CreateProjectPage = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ imgUrl: imageUrl }),
+        body: JSON.stringify({ campaignId: createdProj.id, imgUrl: imageUrl}),
       });
 
       alert("Проєкт успішно створено!");
@@ -101,7 +101,7 @@ const CreateProjectPage = () => {
         alert("Файл занадто великий! Максимальний розмір: 2 МБ");
         return;
       }
-      setNewProject({ ...newProject, image: file }); // Зберігаємо файл, а не Data URL
+      setNewProject({ ...newProject, image: file });
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
