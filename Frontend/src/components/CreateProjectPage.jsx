@@ -54,6 +54,7 @@ const CreateProjectPage = () => {
         currentAmount: 0, 
         category: newProject.category,
         bankaUrl: newProject.bankaUrl,
+        mainImgUrl: newProject.imageUrl,
         status: newProject.status ?? "Активний",
         approxDeadline: newProject.approxDeadline ? new Date(newProject.approxDeadline).toISOString() : null,
         createdDate: new Date().toISOString(),
@@ -73,17 +74,6 @@ const CreateProjectPage = () => {
         const errorText = await response.text();
         throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
       }
-
-      const createdProj = await response.json();
-
-      await fetch("http://localhost:8080/api/campaign-images", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ campaignId: createdProj.id, imgUrl: imageUrl}),
-      });
 
       alert("Проєкт успішно створено!");
       navigate("/projects");

@@ -15,44 +15,48 @@ const ProjectDetail = () => {
   const [newComment, setNewComment] = useState("");
 
   useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        const username = "admin";
-        const password = "admin";
-        const base64Credentials = btoa(`${username}:${password}`);
+  const fetchProject = async () => {
+    try {
+      const username = "admin";
+      const password = "admin";
+      const base64Credentials = btoa(`${username}:${password}`);
 
-        const response = await fetch(`http://localhost:8080/api/campaigns/${id}`, {
-          method: "GET",
-          headers: {  
-            "Content-Type": "application/json",
-            Authorization: `Basic ${base64Credentials}`,
-          },
-        });
+      const response = await fetch(`http://localhost:8080/api/campaigns/${id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${base64Credentials}`,
+        },
+      });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
-        }
-
-        const data = await response.json();
-        setProject({
-          ...data,
-          currentAmount: data.currentAmount ?? 0,
-          goalAmount: data.goalAmount ?? 0,
-          image: data.image || "https://placehold.co/600x400?text=No+Image",
-          bankaUrl: data.bankaUrl ?? "Користувач не залишив банки :(",
-        });
-
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching project:", error.message);
-        setError(error.message);
-        setLoading(false);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
       }
-    };
 
-    fetchProject();
-  }, [id]);
+      const data = await response.json();
+
+      // Додатково нормалізуй дані, якщо треба:
+      const normalizedProject = {
+        ...data,
+        currentAmount: data.currentAmount ?? 0,
+        goalAmount: data.goalAmount ?? 0,
+        image: data.mainImgUrl || "https://placehold.co/600x400?text=No+Image",
+        bankaUrl: data.bankaUrl ?? "Користувач не залишив банки :(",
+        category: data.category || "Відбудова",
+      };
+
+      setProject(normalizedProject);
+      setLoading(false);
+    } catch (error) {
+      setError(error.message);
+      setLoading(false);
+    }
+  };
+
+  fetchProject();
+}, [id]);
+
 
   useEffect(() => {
   const fetchComments = async () => {
