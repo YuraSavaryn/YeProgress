@@ -19,6 +19,7 @@ public interface CampaignMapper {
     @Mapping(target = "createdDate", source = "createdDate")
     @Mapping(target = "approxDeadline", source = "approxDeadline")
     @Mapping(target = "status", source = "status", qualifiedByName = "enumToDisplayName")
+    @Mapping(target = "mainImgUrl", source = "mainImgUrl")
     CampaignDTO toDto(Campaign campaign);
 
     @Mapping(target = "campaignId", source = "campaignId")
@@ -30,6 +31,7 @@ public interface CampaignMapper {
     @Mapping(target = "createdDate", source = "createdDate")
     @Mapping(target = "approxDeadline", source = "approxDeadline")
     @Mapping(target = "status", source = "status", qualifiedByName = "displayNameToEnum")
+    @Mapping(target = "mainImgUrl", source = "mainImgUrl")
     Campaign toEntity(CampaignDTO campaignDTO);
 
     @Mapping(target = "campaignId", ignore = true)

@@ -20,4 +20,6 @@ public class CampaignDTO {
     private LocalDateTime createdDate;
     private LocalDateTime approxDeadline;
     private String status;
+    private String mainImgUrl;
+
 }

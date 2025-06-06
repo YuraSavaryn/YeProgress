@@ -38,4 +38,6 @@ public class Campaign {
 
     @Enumerated(EnumType.STRING)
     private CampaignStatusType status;
+
+    private String mainImgUrl;
 }
