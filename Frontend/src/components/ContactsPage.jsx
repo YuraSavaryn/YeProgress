@@ -18,16 +18,35 @@ const ContactsPage = () => {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    alert("Дякуємо за повідомлення! Ми зв'яжемося з вами найближчим часом.");
-    setFormData({
-      name: '',
-      email: '',
-      subject: '',
-      message: ''
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const response = await fetch("http://localhost:8080/api/contact", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
     });
-  };
+
+    const result = await response.json();
+
+    if (response.ok) {
+      alert(result.message); // Повідомлення з сервера: "Повідомлення успішно відправлено!"
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+      });
+    } else {
+      alert("Помилка: " + result.message);
+    }
+  } catch (error) {
+    alert("Помилка при відправці: " + error.message);
+  }
+};
 
   return (
     <div className="contacts-page">
