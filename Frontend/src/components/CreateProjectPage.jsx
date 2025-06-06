@@ -27,7 +27,7 @@ const CreateProjectPage = () => {
   const handleCreateProject = async () => {
     try {
       // Валідація
-      if (!newProject.title || !newProject.description || !newProject.goalAmount) {
+      if (!newProject.title || !newProject.description) {
         throw new Error("Заповніть усі обов’язкові поля!");
       }
 
@@ -51,7 +51,7 @@ const CreateProjectPage = () => {
         title: newProject.title,
         description: newProject.description,
         goalAmount: Number(newProject.goalAmount),
-        currentAmount: 0,
+        currentAmount: 0, 
         category: newProject.category,
         bankaUrl: newProject.bankaUrl,
         status: newProject.status ?? "Активний",
@@ -138,16 +138,6 @@ const CreateProjectPage = () => {
             </div>
 
             <div className="form-row">
-              <div className="form-group">
-                <label>Грошова ціль збору (₴)</label>
-                <input
-                  type="number"
-                  value={newProject.goalAmount}
-                  onChange={(e) => setNewProject({ ...newProject, goalAmount: e.target.value })}
-                  placeholder="Введіть суму"
-                />
-              </div>
-
               <div className="form-group">
                 <label>Категорія</label>
                 <select
