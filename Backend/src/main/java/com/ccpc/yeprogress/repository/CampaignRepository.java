@@ -11,4 +11,6 @@ import java.util.Optional;
 @Repository
 public interface CampaignRepository extends JpaRepository<Campaign, Long> {
     List<Campaign> findByUser_UserId(Long userId);
+    boolean existsByBankaUrl(String bankaUrl);
+
 }

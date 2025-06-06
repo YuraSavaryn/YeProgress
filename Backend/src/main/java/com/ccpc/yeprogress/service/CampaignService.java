@@ -27,6 +27,13 @@ public class CampaignService {
     }
 
     public CampaignDTO createCampaign(User user, CampaignDTO campaignDTO) {
+            if (campaignDTO.getBankaUrl() != null && !campaignDTO.getBankaUrl().isEmpty()) {
+            boolean exists = campaignRepository.existsByBankaUrl(campaignDTO.getBankaUrl());
+            if (exists) {
+                throw new RuntimeException("Campaign with the same banka URL already exists");
+            }
+        }
+
         Campaign campaign = campaignMapper.toEntity(campaignDTO);
         campaign.setUser(user);
         Campaign savedCampaign = campaignRepository.save(campaign);

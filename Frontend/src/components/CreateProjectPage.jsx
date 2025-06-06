@@ -137,32 +137,6 @@ const CreateProjectPage = () => {
               />
             </div>
 
-            <div className="form-row">
-              <div className="form-group">
-                <label>Грошова ціль збору (₴)</label>
-                <input
-                  type="number"
-                  value={newProject.goalAmount}
-                  onChange={(e) => setNewProject({ ...newProject, goalAmount: e.target.value })}
-                  placeholder="Введіть суму"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Категорія</label>
-                <select
-                  value={newProject.category}
-                  onChange={(e) => setNewProject({ ...newProject, category: e.target.value })}
-                >
-                  {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
             <div className="form-group">
               <label>Посилання на mono-банку</label>
               <input

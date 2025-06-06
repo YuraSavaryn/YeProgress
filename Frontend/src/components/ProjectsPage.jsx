@@ -278,10 +278,11 @@ const ProjectsPage = () => {
                         style={{width: `${(project.collected / project.goal) * 100}%`}}
                       ></div>
                     </div>
-                    <div className="progress-info">
-                      <span>Зібрано: {project.collected.toLocaleString()} ₴</span>
-                      <span>Ціль: {project.goal.toLocaleString()} ₴</span>
-                    </div>
+                      <div className="progress-info">
+                        <span className="block">Зібрано: {project.collected.toLocaleString()} ₴</span><br />
+                        <span className="block">Ціль: {project.goal.toLocaleString()} ₴</span>
+                      </div>
+
                   </div>
                   
                   <Link to={`/project/${project.id}`} className="btn btn-primary">

@@ -29,7 +29,7 @@ public class Campaign {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category categoryId;
-
+    @Column(unique = true)
     private String bankaUrl;
     private BigDecimal currentAmount;
     private BigDecimal goalAmount;

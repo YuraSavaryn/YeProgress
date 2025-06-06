@@ -2764,3 +2764,7 @@ footer a:hover {
 .btn-verify:hover {
   background-color: var(--light-color);
 }
+
+.block{
+  display: block;
+}
