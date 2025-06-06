@@ -15,9 +15,10 @@ const MyProfile = () => {
     name: "Іван Петренко",
     email: "ivan.petrenko@example.com",
     phone: "+380",
-    bio: "Пристрасний меценат та автор кількох успішних краудфандингових проектів",
+    description: "Пристрасний меценат та автор кількох успішних краудфандингових проектів",
     avatar: "https://cdn-icons-png.flaticon.com/512/8345/8345328.png",
     location: "Київ, Україна",
+    isVerified: false,
     Instagram: "https://www.instagram.com/your_username/",
     Facebook: "",
     Twitter: "",
@@ -68,7 +69,7 @@ const MyProfile = () => {
             name: `${data.name || ""} ${data.surname || ""}`.trim() || prev.name,
             email: data.email || prev.email,
             phone: data.phone || prev.phone,
-            bio: data.bio || prev.bio,
+            description: data.description || prev.description,
             avatar: data.avatar || prev.avatar,
             location: data.location || prev.location,
             Instagram: data.Instagram || prev.Instagram,
@@ -139,6 +140,10 @@ const MyProfile = () => {
     const { name, value } = e.target;
     setProfile((prev) => ({ ...prev, [name]: value }));
   };
+
+  const handleVerification = () => {
+    setProfile((prev) => ({ ...prev, isVerified: true }));
+  }
 
   const handleSaveProfile = async () => {
   try {
@@ -267,16 +272,6 @@ const MyProfile = () => {
               {editMode ? (
                 <>
                   <div className="form-group">
-                    <label>Email:</label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={profile.email}
-                      onChange={handleInputChange}
-                      className="profile-input"
-                    />
-                  </div>
-                  <div className="form-group">
                     <label>Номер телефону:</label>
                     <input
                       type="text"
@@ -299,8 +294,8 @@ const MyProfile = () => {
                   <div className="form-group">
                     <label>Про себе:</label>
                     <textarea
-                      name="bio"
-                      value={profile.bio}
+                      name="description"
+                      value={profile.description}
                       onChange={handleInputChange}
                       className="profile-textarea"
                       rows="4"
@@ -317,31 +312,73 @@ const MyProfile = () => {
                       placeholder="https://www.instagram.com/"
                     />
                   </div>
+                  <div className="form-group">
+                    <label>Facebook:</label>
+                    <input
+                      type="text"
+                      name="Facebook"
+                      value={profile.Facebook}
+                      onChange={handleInputChange}
+                      className="profile-input"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Twitter:</label>
+                    <input
+                      type="text"
+                      name="Twitter"
+                      value={profile.Twitter}
+                      onChange={handleInputChange}
+                      className="profile-input"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>LinkedIn:</label>
+                    <input
+                      type="text"
+                      name="LinkedIn"
+                      value={profile.LinkedIn}
+                      onChange={handleInputChange}
+                      className="profile-input"
+                    />
+                  </div>
+
+
                 </>
               ) : (
                 <>
+                  <p><strong>Статус верифікації:</strong> {profile.isVerified ? "Верифікований" : "Не верифікований"}</p>
                   <p><strong>Email:</strong> {profile.email}</p>
                   <p><strong>Телефон:</strong> {profile.phone}</p>
                   <p><strong>Місцезнаходження:</strong> {profile.location}</p>
-                  <p><strong>Про себе:</strong> {profile.bio}</p>
+                  <p><strong>Про себе:</strong> {profile.description}</p>
                 </>
               )}
             </div>
 
-            <button
-              className={`btn ${editMode ? "btn-save" : "btn-edit"}`}
-              onClick={editMode ? handleSaveProfile : () => setEditMode(true)}
-            >
-              {editMode ? (
-                <>
-                  <i className="fas fa-save"></i> Зберегти зміни
-                </>
-              ) : (
-                <>
-                  <i className="fas fa-edit"></i> Редагувати профіль
-                </>
+            <div className="profile-buttons">
+              <button
+                className={`btn ${editMode ? "btn-save" : "btn-edit"}`}
+                onClick={editMode ? handleSaveProfile : () => setEditMode(true)}
+              >
+                {editMode ? (
+                  <>
+                    <i className="fas fa-save"></i> Зберегти зміни
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-edit"></i> Редагувати профіль
+                  </>
+                )}
+              </button>
+
+              {!profile.isVerified && (
+                <button className="btn btn-verify" onClick={() => setProfile(prev => ({ ...prev, isVerified: true }))}>
+                  Верифікувати
+                </button>
               )}
-            </button>
+            </div>
+
 
             <div className="my-projects">
               <h2 className="header-my-projects">Мої проєкти</h2>

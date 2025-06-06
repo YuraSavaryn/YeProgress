@@ -2750,3 +2750,17 @@ footer a:hover {
     padding: 0.8rem 1.5rem;
   }
 }
+
+.btn-verify {
+  background-color: var(--secondary-color);
+  color: white;
+  border: none;
+  margin: 12px;
+  padding: 17px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+.btn-verify:hover {
+  background-color: var(--light-color);
+}

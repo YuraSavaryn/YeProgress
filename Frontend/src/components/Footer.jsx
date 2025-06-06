@@ -12,7 +12,7 @@ const Footer = () => {
         <div className="links">
           <div className="links-head">Для інвесторів</div>
           <ul>
-            <li><a href="#">Як інвестувати</a></li>
+            <li><a href="#Invest">Як інвестувати</a></li>
             <li><a href="#">Юридична інформація</a></li>
             <li><a href="#">FAQ</a></li>
           </ul>

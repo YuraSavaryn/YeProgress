@@ -15,5 +15,9 @@ public interface UserMapper {
     User toEntity(UserDTO UserDTO);
 
     @Mapping(target = "userId", ignore = true) // Ігноруємо userId під час оновлення
+    @Mapping(target = "firebaseId", ignore = true)
+    @Mapping(target = "email", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "isVerified", ignore = true)
     void updateEntityFromDto(UserDTO UserDTO, @MappingTarget User user);
 }

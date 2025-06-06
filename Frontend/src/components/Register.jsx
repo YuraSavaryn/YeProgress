@@ -55,10 +55,10 @@ const Register = () => {
           "Authorization": `Basic ${base64Credentials}`
         },
         body: JSON.stringify({
-          id: newUser.uid,
+          firebaseId: newUser.uid,
           name: firstName,
           surname: lastName,
-          phone: "0966353123",
+          phone: "+380",
           email: email,
           password: password,
           createdAt: new Date().toISOString(),

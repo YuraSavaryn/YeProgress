@@ -3,7 +3,7 @@ import '../index.css';
 import Header from "./Header";
 import Footer from "./Footer";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 const MainPage = () => {
   const [projects, setProjects] = useState([
@@ -104,7 +104,7 @@ const MainPage = () => {
 
       <section className="investments">
         <div className="container">
-          <div className="Invest">
+          <div className="Invest" id="Invest">
             <h3 className="investition-title">У що інвестувати?</h3>
             <div className="invest-grid">
                 <div className="invest-card">
