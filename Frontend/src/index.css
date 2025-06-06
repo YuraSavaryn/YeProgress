@@ -1135,7 +1135,7 @@ footer a:hover {
 .profile-header {
   display: flex;
   justify-content: left;
-  margin-bottom: 30px;
+  margin-bottom: 12px;
   padding: 1rem 5rem;
 }
 
@@ -1317,6 +1317,7 @@ footer a:hover {
   max-width: 1200px;
   padding: 2rem;
 }
+
 
 .project-active {
   display: inline-block;
@@ -2755,11 +2756,9 @@ footer a:hover {
   background-color: var(--secondary-color);
   color: white;
   border: none;
-  margin: 12px;
-  padding: 17px 20px;
+  padding: 12px 12px;
   border-radius: 25px;
   cursor: pointer;
-  margin-top: 8px;
 }
 .btn-verify:hover {
   background-color: var(--light-color);

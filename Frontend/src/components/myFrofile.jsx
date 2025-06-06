@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { signOut } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
-import { FaInstagram, FaFacebook, FaTwitter, FaLinkedin } from "react-icons/fa";
+import { FaInstagram, FaFacebook, FaTwitter, FaLinkedin, FaTrash } from "react-icons/fa";
 import auth from "../auth";
 import Header from "./Header";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -12,7 +12,8 @@ const MyProfile = () => {
   const navigate = useNavigate();
   const [previewAvatar, setPreviewAvatar] = useState(null);
   const [profile, setProfile] = useState({
-    name: "Іван Петренко",
+    name: "Іван",
+    surname: "",
     email: "ivan.petrenko@example.com",
     phone: "+380",
     description: "Пристрасний меценат та автор кількох успішних краудфандингових проектів",
@@ -26,6 +27,32 @@ const MyProfile = () => {
   });
 
   const [projects, setProjects] = useState([]);
+
+  const handleDeleteProject = async (projectId) => {
+  try {
+    const username = "admin";
+    const password = "admin";
+    const base64Credentials = btoa(`${username}:${password}`);
+
+    const response = await fetch(`http://localhost:8080/api/campaigns/${projectId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Basic ${base64Credentials}`
+      }
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+    }
+
+    setProjects((prevProjects) => prevProjects.filter(p => p.id !== projectId));
+    } catch (error) {
+      console.error("Error deleting project:", error.message);
+      alert("Не вдалося видалити проєкт.");
+    }
+  };
+
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -66,12 +93,14 @@ const MyProfile = () => {
           const data = await response.json();
           setProfile((prev) => ({
             ...prev,
-            name: `${data.name || ""} ${data.surname || ""}`.trim() || prev.name,
+            name: data.name || prev.name,
+            surname: data.surname || prev.surname,
             email: data.email || prev.email,
             phone: data.phone || prev.phone,
             description: data.description || prev.description,
             avatar: data.avatar || prev.avatar,
             location: data.location || prev.location,
+            isVerified: data.isVerified || prev.isVerified,
             Instagram: data.Instagram || prev.Instagram,
             Facebook: data.Facebook || prev.Facebook,
             Twitter: data.Twitter || prev.Twitter,
@@ -141,9 +170,40 @@ const MyProfile = () => {
     setProfile((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleVerification = () => {
-    setProfile((prev) => ({ ...prev, isVerified: true }));
+const handleVerification = async () => {
+  const user = auth.currentUser;
+  if (!user) {
+    alert("Користувач не авторизований");
+    return;
   }
+
+  const username = "admin";
+  const password = "admin";
+  const base64Credentials = btoa(`${username}:${password}`);
+  const userId = user.uid;
+
+  try {
+    const response = await fetch(`http://localhost:8080/api/users/verified/${userId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Basic ${base64Credentials}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+    }
+
+      setProfile((prev) => ({ ...prev, isVerified: true }));
+      alert("Профіль успішно верифіковано!");
+    } catch (error) {
+      console.error("Помилка при верифікації:", error.message);
+      alert("Не вдалося верифікувати профіль.");
+    }
+  };
+
 
   const handleSaveProfile = async () => {
   try {
@@ -237,6 +297,7 @@ const MyProfile = () => {
             </div>
             <div className="name-section">
               {editMode ? (
+                <>
                 <input
                   type="text"
                   name="name"
@@ -244,8 +305,17 @@ const MyProfile = () => {
                   onChange={handleInputChange}
                   className="profile-input name-input"
                 />
+                <input
+                  type="text"
+                  name="name"
+                  value={profile.surname}
+                  onChange={handleInputChange}
+                  className="profile-input name-input"
+                />
+                </>
+                
               ) : (
-                <h2>{profile.name}</h2>
+                <h2>{profile.name + " " + profile.surname}</h2>
               )}
             </div>
           </div>
@@ -254,6 +324,11 @@ const MyProfile = () => {
         <div className="profile-content">
           <div className="profile-info">
             <div className="info-section">
+              {!profile.isVerified && (
+                <button className="btn btn-verify" onClick={handleVerification}>
+                  Верифікувати
+                </button>
+              )}
               <div className="social-links">
                 <a href={profile.Instagram} target="_blank" rel="noopener noreferrer">
                   <FaInstagram className="social-icon" />
@@ -342,8 +417,6 @@ const MyProfile = () => {
                       className="profile-input"
                     />
                   </div>
-
-
                 </>
               ) : (
                 <>
@@ -371,12 +444,6 @@ const MyProfile = () => {
                   </>
                 )}
               </button>
-
-              {!profile.isVerified && (
-                <button className="btn btn-verify" onClick={() => setProfile(prev => ({ ...prev, isVerified: true }))}>
-                  Верифікувати
-                </button>
-              )}
             </div>
 
 
@@ -408,6 +475,18 @@ const MyProfile = () => {
                       <Link to={`/project/edit/${project.id}`} className="btn btn-primary">
                         Редагувати
                       </Link>
+                      <button
+                        className="btn btn-danger"
+                        onClick={() => {
+                          if (window.confirm("Ви впевнені, що хочете видалити цей проєкт?")) {
+                            handleDeleteProject(project.id);
+                          }
+                        }}
+                        style={{ marginLeft: "8px", cursor: "pointer" }}
+                        title="Видалити проєкт"
+                      >
+                        <FaTrash />
+                      </button>
                     </div>
                   </div>
                 ))}

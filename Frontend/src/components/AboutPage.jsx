@@ -115,30 +115,6 @@ const teamMembers = [
             </div>
           </div>
         </section>
-
-        {/* Статистика */}
-        <section className="stats-section">
-          <div className="container">
-            <div className="stats-grid">
-              <div className="stat-item">
-                <div className="stat-number">250+</div>
-                <div className="stat-label">Успішних проєктів</div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-number">₴15М</div>
-                <div className="stat-label">Залучено інвестицій</div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-number">5000+</div>
-                <div className="stat-label">Активних інвесторів</div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-number">95%</div>
-                <div className="stat-label">Задоволених клієнтів</div>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
       <Footer />
 
