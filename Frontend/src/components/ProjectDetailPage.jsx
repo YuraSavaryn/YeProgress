@@ -65,7 +65,7 @@ const ProjectDetail = () => {
     const base64Credentials = btoa(`${username}:${password}`);
 
     try {
-      const response = await fetch(`http://localhost:8080/api/campaign-comments/${id}`, {
+      const response = await fetch(`http://localhost:8080/api/campaign-comments/campaign/${id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -119,7 +119,7 @@ const ProjectDetail = () => {
     }
 
     const userData = await userResponse.json();
-    const userId = userData.id;
+    const userId = userData.userId;
 
     const commentPayload = {
       userId: userId,

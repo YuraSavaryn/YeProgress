@@ -52,6 +52,12 @@ public class CommentsCampaignService {
         return commentsCampaignMapper.toDto(commentsCampaign);
     }
 
+    public List<CommentsCampaignDTO> getCommentByCampaignId(Long campaignId) {
+        return commentsCampaignRepository.findByCampaign_CampaignId(campaignId).stream()
+                .map(commentsCampaignMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
     public List<CommentsCampaignDTO> getAllComments() {
         return commentsCampaignRepository.findAll().stream()
                 .map(commentsCampaignMapper::toDto)
