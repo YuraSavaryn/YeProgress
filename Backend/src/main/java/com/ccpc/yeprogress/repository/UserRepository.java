@@ -8,5 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByFirebaseId(String firebaseId);
-    Optional<User> deleteByFirebaseId(String firebaseId);
+    boolean existsByFirebaseId(String firebaseId);
+    void deleteByFirebaseId(String firebaseId);
 }
