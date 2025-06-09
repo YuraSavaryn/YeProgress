@@ -14,7 +14,7 @@ function EditProjectPage() {
     category: "Відбудова",
     goal: "",
     collected: "",
-    monoLink: "",
+    bankaUrl: "",
     image: "",
     active: "Активний",
   });
@@ -48,7 +48,7 @@ function EditProjectPage() {
           category: project.category || "Відбудова",
           goal: project.goal || "",
           collected: project.collected || 0,
-          monoLink: project.monoLink || "",
+          bankaUrl: project.bankaUrl || "",
           image: project.image || "",
           active: project.active || "Активний",
         });
@@ -80,7 +80,7 @@ function EditProjectPage() {
 
   const handleUpdateProject = async () => {
     try {
-      if (!formData.title || !formData.description || !formData.goal) {
+      if (!formData.title || !formData.description) {
         throw new Error("Заповніть усі обов’язкові поля (назва, опис, ціль)");
       }
 
@@ -184,7 +184,7 @@ function EditProjectPage() {
               <input
                 type="url"
                 id="monoLink"
-                name="monoLink"
+                name="bankaUrl"
                 value={formData.bankaUrl}
                 onChange={handleChange}
                 placeholder="https://send.monobank.ua/..."
@@ -197,6 +197,18 @@ function EditProjectPage() {
                 <img src={formData.image} alt="Preview" style={{ maxWidth: "200px", marginTop: "10px" }} />
               )}
             </div>
+            <div className="form-group">
+              <label htmlFor="monoLink">Посилання на фото</label>
+              <input
+                type="url"
+                id="image"
+                name="image"
+                value={formData.image}
+                onChange={handleChange}
+                placeholder="https://"
+              />
+            </div>
+
             <div className="form-buttons">
               <button className="btn btn-first" onClick={handleUpdateProject}>
                 Зберегти

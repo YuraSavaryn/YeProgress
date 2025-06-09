@@ -1318,6 +1318,16 @@ footer a:hover {
   padding: 2rem;
 }
 
+.project-card {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.project-cards:has(.project-card:only-child) {
+  display: flex;
+  justify-content: center;
+}
+
 
 .project-active {
   display: inline-block;

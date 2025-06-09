@@ -2,8 +2,9 @@ import React from "react"
 import '../index.css';
 import Header from "./Header";
 import Footer from "./Footer";
-import { Link } from "react-router-dom";
-import { useState, useRef } from "react";
+import auth from "../auth";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect} from "react";
 
 const MainPage = () => {
   const [projects, setProjects] = useState([
@@ -35,6 +36,24 @@ const MainPage = () => {
         image: "https://vidnova.ua/wp-content/uploads/2024/03/IMG_2318-HDR-2-scaled.jpg"
       }
     ]);
+
+    const [isAuth, setIsAuth] = useState(false);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+      const unsubscribe = auth.onAuthStateChanged((user) => {
+      setIsAuth(!!user);
+    });
+      return () => unsubscribe();
+    }, []);
+
+    const handleCreateClick = () => {
+      if (isAuth) {
+        navigate("/create-project");
+      } else {
+        navigate("/login");
+      }
+    };
 
     return(
         <>
@@ -96,7 +115,9 @@ const MainPage = () => {
             <h3 className="create-title">Створи своє оголошення</h3>
             <p>Опиши свій інвестиційний проєкт або ідею, щоб зацікавити потенційних інвесторів. Створи оголошення, яке допоможе твоїй ініціативі стати помітною</p>
             <div className="buttons">
-              <Link to="/create-project" className="btn btn-first">Створити оголошення</Link>
+              <button onClick={handleCreateClick} className="btn btn-first">
+                Створити оголошення
+              </button>
             </div>
           </div>
         </div>

@@ -184,14 +184,14 @@ const ProjectDetail = () => {
                 ></div>
               </div>
               <div className="progress-numbers">
-                <span>Зібрано: {(project.currentAmount || 0).toLocaleString()} ₴</span>
-                <span>Ціль: {(project.goalAmount || 0).toLocaleString()} ₴</span>
+                <span>Зібрано: {(project.goalAmount || 0).toLocaleString()} ₴</span>
+                <span>Ціль: {(project.currentAmount || 0).toLocaleString()} ₴</span>
               </div>
             </div>
 
             <div className="project-banka">
               <h3>Банка: </h3>
-              <p>{project.bankaUrl}</p>
+              <a href={project.bankaUrl}><p>{project.bankaUrl}</p></a>
             </div>
 
             <div className="project-description">

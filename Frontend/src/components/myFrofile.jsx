@@ -308,7 +308,7 @@ const MyProfile = () => {
                   />
                   <input
                     type="text"
-                    name="name"
+                    name="surname"
                     value={profile.surname}
                     onChange={handleInputChange}
                     className="profile-input name-input"
