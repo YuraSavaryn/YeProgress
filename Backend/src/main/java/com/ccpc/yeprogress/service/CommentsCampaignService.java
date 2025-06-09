@@ -102,6 +102,12 @@ public class CommentsCampaignService {
         }
     }
 
+    public List<CommentsCampaignDTO> getCommentByCampaignId(Long campaignId) {
+        return commentsCampaignRepository.findByCampaign_CampaignId(campaignId).stream()
+                .map(commentsCampaignMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
     public List<CommentsCampaignDTO> getAllComments() {
         LoggerService.logRetrieveAttempt(logger, "All CampaignComments", "all");
 

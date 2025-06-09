@@ -31,6 +31,12 @@ public class CommentsCampaignController {
         return ResponseEntity.ok(commentDTO);
     }
 
+    @GetMapping("/campaign/{id}")
+    public ResponseEntity<List<CommentsCampaignDTO>> getCommentByCampaignId(@PathVariable Long id) {
+        List<CommentsCampaignDTO> commentsDTO = commentsCampaignService.getCommentByCampaignId(id);
+        return ResponseEntity.ok(commentsDTO);
+    }
+
     @GetMapping
     public ResponseEntity<List<CommentsCampaignDTO>> getAllComments() {
         List<CommentsCampaignDTO> comments = commentsCampaignService.getAllComments();

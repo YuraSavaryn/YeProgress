@@ -12,6 +12,8 @@ public interface CommentsCampaignMapper {
     @Mapping(target = "campaignId", source = "campaign.campaignId")
     CommentsCampaignDTO toDto(CommentsCampaign commentsCampaign);
 
+    @Mapping(target = "user.userId", source = "userId")
+    @Mapping(target = "campaign.campaignId", source = "campaignId")
     CommentsCampaign toEntity(CommentsCampaignDTO commentsCampaignDTO);
 
     @Mapping(target = "commentId", ignore = true) // Ігноруємо commentId під час оновлення
