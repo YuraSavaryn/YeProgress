@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../index.css";
+import auth from "../auth";
 import Header from "./Header";
 import Footer from "./Footer";
 
@@ -60,7 +61,6 @@ const ProjectsPage = () => {
         goal: project.goalAmount ?? 0,
         collected: project.currentAmount ?? 0,
         monoLink: project.bankaUrl ?? "",
-        // Використовуємо mainImgUrl, якщо немає - беремо дефолтні
         image:
           project.mainImgUrl && project.mainImgUrl !== "https://placehold.co/600x400?text=No+Image"
             ? project.mainImgUrl
@@ -78,6 +78,23 @@ const ProjectsPage = () => {
   fetchProjects();
 }, []);
 
+  const [isAuth, setIsAuth] = useState(false);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+      const unsubscribe = auth.onAuthStateChanged((user) => {
+      setIsAuth(!!user);
+    });
+      return () => unsubscribe();
+    }, []);
+
+    const handleCreateClick = () => {
+      if (isAuth) {
+        navigate("/create-project");
+      } else {
+        navigate("/login");
+      }
+    };
 
   const handleCreateProject = () => {
     const newProjectObj = {
@@ -142,12 +159,13 @@ const ProjectsPage = () => {
                 </select>
               </div>
               
-              <Link 
-                to="/create-project" 
+              <button 
+                onClick={handleCreateProject} 
                 className="btn btn-first create-btn"
               >
                 Створити проєкт
-              </Link>
+              </button>
+
             </div>
           </div>
 
