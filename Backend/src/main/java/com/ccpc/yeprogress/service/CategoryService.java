@@ -3,15 +3,15 @@ package com.ccpc.yeprogress.service;
 import com.ccpc.yeprogress.dto.CategoryDTO;
 import com.ccpc.yeprogress.exception.UserNotFoundException;
 import com.ccpc.yeprogress.exception.UserValidationException;
+import com.ccpc.yeprogress.logger.LoggerService;
 import com.ccpc.yeprogress.mapper.CategoryMapper;
 import com.ccpc.yeprogress.model.Category;
 import com.ccpc.yeprogress.repository.CategoryRepository;
+import com.ccpc.yeprogress.validation.ValidationService;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,147 +19,127 @@ import java.util.stream.Collectors;
 @Service
 public class CategoryService {
 
-    private static final Logger logger = LoggerFactory.getLogger(CategoryService.class);
+    private static final Logger logger = LoggerService.getLogger(CategoryService.class);
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
-
-    private static final int MAX_NAME_LENGTH = 50;
+    private final ValidationService validationService;
 
     @Autowired
-    public CategoryService(CategoryRepository categoryRepository, CategoryMapper categoryMapper) {
+    public CategoryService(CategoryRepository categoryRepository, CategoryMapper categoryMapper, ValidationService validationService) {
         this.categoryRepository = categoryRepository;
         this.categoryMapper = categoryMapper;
+        this.validationService = validationService;
     }
 
     @Transactional
     public CategoryDTO createCategory(CategoryDTO categoryDTO) {
-        logger.info("Attempting to create category with name: {}", categoryDTO.getName());
+        LoggerService.logCreateAttempt(logger, "Category", categoryDTO.getName());
 
         try {
-            validateCategoryDTO(categoryDTO);
+            validationService.validateCategoryDTO(categoryDTO);
 
             Category category = categoryMapper.toEntity(categoryDTO);
             Category savedCategory = categoryRepository.save(category);
-            logger.info("Successfully created category with ID: {}", savedCategory.getCategoryId());
+            LoggerService.logCreateSuccess(logger, "Category", savedCategory.getCategoryId());
 
             return categoryMapper.toDto(savedCategory);
 
         } catch (UserValidationException e) {
-            logger.error("Validation failed for category creation: {}", e.getMessage());
+            LoggerService.logError(logger, "Validation failed for category creation: {}", e.getMessage());
             throw e;
         } catch (Exception e) {
-            logger.error("Unexpected error during category creation: {}", e.getMessage(), e);
+            LoggerService.logUnexpectedError(logger, "category creation", e.getMessage(), e);
             throw new RuntimeException("Failed to create category due to unexpected error", e);
         }
     }
 
     public CategoryDTO getCategoryById(Long id) {
-        logger.info("Retrieving category with ID: {}", id);
+        LoggerService.logRetrieveAttempt(logger, "Category", id);
 
         try {
             Category category = categoryRepository.findById(id)
                     .orElseThrow(() -> {
-                        logger.warn("Category with ID {} not found", id);
+                        LoggerService.logEntityNotFound(logger, "Category", id);
                         return new UserNotFoundException("Category with ID " + id + " not found");
                     });
 
-            logger.debug("Successfully retrieved category with ID: {}", id);
+            LoggerService.logRetrieveSuccess(logger, "Category", id);
             return categoryMapper.toDto(category);
 
         } catch (UserNotFoundException e) {
-            logger.error("Error retrieving category: {}", e.getMessage());
+            LoggerService.logError(logger, "Error retrieving category: {}", e.getMessage());
             throw e;
         } catch (Exception e) {
-            logger.error("Unexpected error retrieving category: {}", e.getMessage(), e);
+            LoggerService.logUnexpectedError(logger, "category retrieval", e.getMessage(), e);
             throw new RuntimeException("Failed to retrieve category due to unexpected error", e);
         }
     }
 
     public List<CategoryDTO> getAllCategories() {
-        logger.info("Retrieving all categories");
+        LoggerService.logRetrieveAttempt(logger, "All Categories", "all");
 
         try {
             List<Category> categories = categoryRepository.findAll();
-            logger.debug("Retrieved {} categories", categories.size());
+            LoggerService.logRetrieveSuccess(logger, "All Categories", categories.size());
 
             return categories.stream()
                     .map(categoryMapper::toDto)
                     .collect(Collectors.toList());
 
         } catch (Exception e) {
-            logger.error("Unexpected error retrieving all categories: {}", e.getMessage(), e);
+            LoggerService.logUnexpectedError(logger, "retrieval of all categories", e.getMessage(), e);
             throw new RuntimeException("Failed to retrieve categories due to unexpected error", e);
         }
     }
 
     @Transactional
     public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO) {
-        logger.info("Attempting to update category with ID: {}", id);
+        LoggerService.logUpdateAttempt(logger, "Category", id);
 
         try {
-            validateCategoryDTO(categoryDTO);
+            validationService.validateCategoryDTO(categoryDTO);
 
             Category category = categoryRepository.findById(id)
                     .orElseThrow(() -> {
-                        logger.warn("Category with ID {} not found", id);
+                        LoggerService.logEntityNotFound(logger, "Category", id);
                         return new UserNotFoundException("Category with ID " + id + " not found");
                     });
 
             categoryMapper.updateEntityFromDto(categoryDTO, category);
             Category savedCategory = categoryRepository.save(category);
-            logger.info("Successfully updated category with ID: {}", id);
+            LoggerService.logUpdateSuccess(logger, "Category", id);
 
             return categoryMapper.toDto(savedCategory);
 
         } catch (UserValidationException | UserNotFoundException e) {
-            logger.error("Error updating category: {}", e.getMessage());
+            LoggerService.logError(logger, "Error updating category: {}", e.getMessage());
             throw e;
         } catch (Exception e) {
-            logger.error("Unexpected error during category update: {}", e.getMessage(), e);
+            LoggerService.logUnexpectedError(logger, "category update", e.getMessage(), e);
             throw new RuntimeException("Failed to update category due to unexpected error", e);
         }
     }
 
     @Transactional
     public void deleteCategory(Long id) {
-        logger.info("Attempting to delete category with ID: {}", id);
+        LoggerService.logDeleteAttempt(logger, "Category", id);
 
         try {
             if (!categoryRepository.existsById(id)) {
-                logger.warn("Category deletion failed: ID {} not found", id);
+                LoggerService.logEntityNotFound(logger, "Category", id);
                 throw new UserNotFoundException("Category with ID " + id + " not found");
             }
 
             categoryRepository.deleteById(id);
-            logger.info("Successfully deleted category with ID: {}", id);
+            LoggerService.logDeleteSuccess(logger, "Category", id);
 
         } catch (UserNotFoundException e) {
-            logger.error("Error deleting category: {}", e.getMessage());
+            LoggerService.logError(logger, "Error deleting category: {}", e.getMessage());
             throw e;
         } catch (Exception e) {
-            logger.error("Unexpected error during category deletion: {}", e.getMessage(), e);
+            LoggerService.logUnexpectedError(logger, "category deletion", e.getMessage(), e);
             throw new RuntimeException("Failed to delete category due to unexpected error", e);
-        }
-    }
-
-    private void validateCategoryDTO(CategoryDTO categoryDTO) {
-        logger.debug("Validating category DTO");
-
-        if (!StringUtils.hasText(categoryDTO.getName())) {
-            logger.warn("Validation failed: Category name is required");
-            throw new UserValidationException("Category name is required");
-        }
-
-        if (categoryDTO.getName().length() > MAX_NAME_LENGTH) {
-            logger.warn("Validation failed: Category name exceeds {} characters", MAX_NAME_LENGTH);
-            throw new UserValidationException(
-                    "Category name must not exceed " + MAX_NAME_LENGTH + " characters");
-        }
-
-        if (!categoryDTO.getName().matches("^[a-zA-Zа-яА-ЯіІїЇєЄ\\s-']+$")) {
-            logger.warn("Validation failed: Category name contains invalid characters");
-            throw new UserValidationException("Category name contains invalid characters");
         }
     }
 }

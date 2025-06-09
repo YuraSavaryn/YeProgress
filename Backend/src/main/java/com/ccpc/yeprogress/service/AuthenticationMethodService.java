@@ -3,14 +3,15 @@ package com.ccpc.yeprogress.service;
 import com.ccpc.yeprogress.dto.AuthenticationMethodDTO;
 import com.ccpc.yeprogress.exception.UserNotFoundException;
 import com.ccpc.yeprogress.exception.UserValidationException;
+import com.ccpc.yeprogress.logger.LoggerService;
 import com.ccpc.yeprogress.mapper.AuthenticationMethodMapper;
 import com.ccpc.yeprogress.model.AuthenticationMethod;
 import com.ccpc.yeprogress.repository.AuthenticationMethodRepository;
+import com.ccpc.yeprogress.validation.ValidationService;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,143 +19,129 @@ import java.util.stream.Collectors;
 @Service
 public class AuthenticationMethodService {
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticationMethodService.class);
+    private static final Logger logger = LoggerService.getLogger(AuthenticationMethodService.class);
 
     private final AuthenticationMethodRepository authenticationMethodRepository;
     private final AuthenticationMethodMapper authenticationMethodMapper;
+    private final ValidationService validationService;
 
     @Autowired
     public AuthenticationMethodService(AuthenticationMethodRepository authenticationMethodRepository,
-                                       AuthenticationMethodMapper authenticationMethodMapper) {
+                                       AuthenticationMethodMapper authenticationMethodMapper,
+                                       ValidationService validationService) {
         this.authenticationMethodRepository = authenticationMethodRepository;
         this.authenticationMethodMapper = authenticationMethodMapper;
+        this.validationService = validationService;
     }
 
+    @Transactional
     public AuthenticationMethodDTO createAuthenticationMethod(AuthenticationMethodDTO authenticationMethodDTO) {
-        logger.info("Attempting to create authentication method: {}", authenticationMethodDTO.getAuthMethodName());
+        LoggerService.logCreateAttempt(logger, "AuthenticationMethod", authenticationMethodDTO.getAuthMethodName());
 
         try {
-            // Validate input
-            validateAuthenticationMethod(authenticationMethodDTO);
+            validationService.validateAuthenticationMethodDTO(authenticationMethodDTO);
 
             AuthenticationMethod authenticationMethod = authenticationMethodMapper.toEntity(authenticationMethodDTO);
             AuthenticationMethod savedAuthenticationMethod = authenticationMethodRepository.save(authenticationMethod);
-            logger.info("Successfully created authentication method with ID: {}",
-                    savedAuthenticationMethod.getAuthMethodId());
+            LoggerService.logCreateSuccess(logger, "AuthenticationMethod", savedAuthenticationMethod.getAuthMethodId());
 
             return authenticationMethodMapper.toDto(savedAuthenticationMethod);
 
         } catch (UserValidationException e) {
-            logger.error("Validation failed for authentication method creation: {}", e.getMessage());
+            LoggerService.logError(logger, "Validation failed for authentication method creation: {}", e.getMessage());
             throw e;
         } catch (Exception e) {
-            logger.error("Unexpected error during authentication method creation: {}", e.getMessage(), e);
+            LoggerService.logUnexpectedError(logger, "authentication method creation", e.getMessage(), e);
             throw new RuntimeException("Failed to create authentication method due to unexpected error", e);
         }
     }
 
     public AuthenticationMethodDTO getAuthenticationMethodById(Long id) {
-        logger.info("Retrieving authentication method with ID: {}", id);
+        LoggerService.logRetrieveAttempt(logger, "AuthenticationMethod", id);
 
         try {
             AuthenticationMethod authenticationMethod = authenticationMethodRepository.findById(id)
                     .orElseThrow(() -> {
-                        logger.warn("Authentication method with ID {} not found", id);
+                        LoggerService.logEntityNotFound(logger, "AuthenticationMethod", id);
                         return new UserNotFoundException("Authentication method with ID " + id + " not found");
                     });
 
-            logger.debug("Successfully retrieved authentication method with ID: {}", id);
+            LoggerService.logRetrieveSuccess(logger, "AuthenticationMethod", id);
             return authenticationMethodMapper.toDto(authenticationMethod);
 
         } catch (UserNotFoundException e) {
-            logger.error("Error retrieving authentication method: {}", e.getMessage());
+            LoggerService.logError(logger, "Error retrieving authentication method: {}", e.getMessage());
             throw e;
         } catch (Exception e) {
-            logger.error("Unexpected error retrieving authentication method: {}", e.getMessage(), e);
+            LoggerService.logUnexpectedError(logger, "authentication method retrieval", e.getMessage(), e);
             throw new RuntimeException("Failed to retrieve authentication method due to unexpected error", e);
         }
     }
 
-
     public List<AuthenticationMethodDTO> getAllAuthenticationMethods() {
-        logger.info("Retrieving all authentication methods");
+        LoggerService.logRetrieveAttempt(logger, "All AuthenticationMethods", "all");
 
         try {
             List<AuthenticationMethod> methods = authenticationMethodRepository.findAll();
-            logger.debug("Retrieved {} authentication methods", methods.size());
+            LoggerService.logRetrieveSuccess(logger, "All AuthenticationMethods", methods.size());
 
             return methods.stream()
                     .map(authenticationMethodMapper::toDto)
                     .collect(Collectors.toList());
 
         } catch (Exception e) {
-            logger.error("Unexpected error retrieving all authentication methods: {}", e.getMessage(), e);
+            LoggerService.logUnexpectedError(logger, "retrieval of all authentication methods", e.getMessage(), e);
             throw new RuntimeException("Failed to retrieve authentication methods due to unexpected error", e);
         }
     }
 
+    @Transactional
     public AuthenticationMethodDTO updateAuthenticationMethod(Long id, AuthenticationMethodDTO authenticationMethodDTO) {
-        logger.info("Attempting to update authentication method with ID: {}", id);
+        LoggerService.logUpdateAttempt(logger, "AuthenticationMethod", id);
 
         try {
-            // Validate input
-            validateAuthenticationMethod(authenticationMethodDTO);
+            validationService.validateAuthenticationMethodDTO(authenticationMethodDTO);
 
             AuthenticationMethod authenticationMethod = authenticationMethodRepository.findById(id)
                     .orElseThrow(() -> {
-                        logger.warn("Authentication method with ID {} not found", id);
+                        LoggerService.logEntityNotFound(logger, "AuthenticationMethod", id);
                         return new UserNotFoundException("Authentication method with ID " + id + " not found");
                     });
 
             authenticationMethodMapper.updateEntityFromDto(authenticationMethodDTO, authenticationMethod);
             AuthenticationMethod savedAuthenticationMethod = authenticationMethodRepository.save(authenticationMethod);
-            logger.info("Successfully updated authentication method with ID: {}", id);
+            LoggerService.logUpdateSuccess(logger, "AuthenticationMethod", id);
 
             return authenticationMethodMapper.toDto(savedAuthenticationMethod);
 
         } catch (UserValidationException | UserNotFoundException e) {
-            logger.error("Error updating authentication method: {}", e.getMessage());
+            LoggerService.logError(logger, "Error updating authentication method: {}", e.getMessage());
             throw e;
         } catch (Exception e) {
-            logger.error("Unexpected error during authentication method update: {}", e.getMessage(), e);
+            LoggerService.logUnexpectedError(logger, "authentication method update", e.getMessage(), e);
             throw new RuntimeException("Failed to update authentication method due to unexpected error", e);
         }
     }
 
-
+    @Transactional
     public void deleteAuthenticationMethod(Long id) {
-        logger.info("Attempting to delete authentication method with ID: {}", id);
+        LoggerService.logDeleteAttempt(logger, "AuthenticationMethod", id);
 
         try {
             if (!authenticationMethodRepository.existsById(id)) {
-                logger.warn("Authentication method deletion failed: ID {} not found", id);
+                LoggerService.logEntityNotFound(logger, "AuthenticationMethod", id);
                 throw new UserNotFoundException("Authentication method with ID " + id + " not found");
             }
 
             authenticationMethodRepository.deleteById(id);
-            logger.info("Successfully deleted authentication method with ID: {}", id);
+            LoggerService.logDeleteSuccess(logger, "AuthenticationMethod", id);
 
         } catch (UserNotFoundException e) {
-            logger.error("Error deleting authentication method: {}", e.getMessage());
+            LoggerService.logError(logger, "Error deleting authentication method: {}", e.getMessage());
             throw e;
         } catch (Exception e) {
-            logger.error("Unexpected error during authentication method deletion: {}", e.getMessage(), e);
+            LoggerService.logUnexpectedError(logger, "authentication method deletion", e.getMessage(), e);
             throw new RuntimeException("Failed to delete authentication method due to unexpected error", e);
-        }
-    }
-
-
-    private void validateAuthenticationMethod(AuthenticationMethodDTO authenticationMethodDTO) {
-        logger.debug("Validating authentication method DTO");
-
-        if (!StringUtils.hasText(authenticationMethodDTO.getAuthMethodName())) {
-            logger.warn("Validation failed: Authentication method name is required");
-            throw new UserValidationException("Authentication method name is required");
-        }
-
-        if (authenticationMethodDTO.getAuthMethodName().length() > 50) {
-            logger.warn("Validation failed: Authentication method name exceeds 50 characters");
-            throw new UserValidationException("Authentication method name must not exceed 50 characters");
         }
     }
 }

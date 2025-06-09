@@ -4,157 +4,152 @@ import com.ccpc.yeprogress.dto.CampaignDTO;
 import com.ccpc.yeprogress.exception.UserAlreadyExistsException;
 import com.ccpc.yeprogress.exception.UserNotFoundException;
 import com.ccpc.yeprogress.exception.UserValidationException;
+import com.ccpc.yeprogress.logger.LoggerService;
 import com.ccpc.yeprogress.mapper.CampaignMapper;
 import com.ccpc.yeprogress.model.Campaign;
 import com.ccpc.yeprogress.model.User;
-import com.ccpc.yeprogress.model.types.CampaignStatusType;
 import com.ccpc.yeprogress.repository.CampaignRepository;
+import com.ccpc.yeprogress.validation.ValidationService;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class CampaignService {
 
-    private static final Logger logger = LoggerFactory.getLogger(CampaignService.class);
+    private static final Logger logger = LoggerService.getLogger(CampaignService.class);
 
     private final CampaignRepository campaignRepository;
     private final CampaignMapper campaignMapper;
-    private final CampaignScrapingService scrapingService;
-
-    private static final int MAX_TITLE_LENGTH = 100;
-    private static final int MAX_DESCRIPTION_LENGTH = 500;
+    private final CampaignScrapingService scrapingService; // Corrected to CampaignScrapingService
+    private final ValidationService validationService;
 
     @Autowired
     public CampaignService(CampaignRepository campaignRepository,
                            CampaignMapper campaignMapper,
-                           CampaignScrapingService scrapingService) {
+                           CampaignScrapingService scrapingService, // Corrected to CampaignScrapingService
+                           ValidationService validationService) {
         this.campaignRepository = campaignRepository;
         this.campaignMapper = campaignMapper;
         this.scrapingService = scrapingService;
+        this.validationService = validationService;
     }
 
+    @Transactional
     public CampaignDTO createCampaign(User user, CampaignDTO campaignDTO) {
-        logger.info("Attempting to create campaign for user ID: {}",
-                user != null ? user.getUserId() : "null");
+        LoggerService.logCreateAttempt(logger, "Campaign", user != null ? user.getUserId() : "null");
 
         try {
             if (user == null || user.getUserId() == null) {
-                logger.warn("Validation failed: User is required");
+                LoggerService.logValidationFailure(logger, "User is required");
                 throw new UserValidationException("User is required for campaign creation");
             }
-            validateCampaignDTO(campaignDTO);
+            validationService.validateCampaignDTO(campaignDTO);
 
             if (StringUtils.hasText(campaignDTO.getBankaUrl())) {
                 boolean exists = campaignRepository.existsByBankaUrl(campaignDTO.getBankaUrl());
                 if (exists) {
-                    logger.warn("Campaign creation failed: Banka URL {} already exists",
-                            campaignDTO.getBankaUrl());
-                    throw new UserAlreadyExistsException(
-                            "Campaign with banka URL " + campaignDTO.getBankaUrl() + " already exists");
+                    LoggerService.logValidationFailure(logger, "Campaign with banka URL {} already exists", campaignDTO.getBankaUrl());
+                    throw new UserAlreadyExistsException("Campaign with banka URL " + campaignDTO.getBankaUrl() + " already exists");
                 }
             }
 
             Campaign campaign = campaignMapper.toEntity(campaignDTO);
             campaign.setUser(user);
             Campaign savedCampaign = campaignRepository.save(campaign);
-            logger.info("Successfully created campaign with ID: {} for user ID: {}",
-                    savedCampaign.getCampaignId(), user.getUserId());
+            LoggerService.logCreateSuccess(logger, "Campaign", savedCampaign.getCampaignId());
 
             if (StringUtils.hasText(savedCampaign.getBankaUrl())) {
                 try {
                     scrapingService.updateCampaignAmounts(savedCampaign);
-                    logger.debug("Updated amounts for new campaign ID: {}",
-                            savedCampaign.getCampaignId());
+                    LoggerService.logDebug(logger, "Updated amounts for new campaign ID: {}", savedCampaign.getCampaignId());
                 } catch (Exception e) {
-                    logger.warn("Failed to update amounts for new campaign ID {}: {}",
-                            savedCampaign.getCampaignId(), e.getMessage());
+                    LoggerService.logWarn(logger, "Failed to update amounts for new campaign ID {}: {}", savedCampaign.getCampaignId(), e.getMessage());
                 }
             }
 
             return campaignMapper.toDto(savedCampaign);
 
         } catch (UserValidationException | UserAlreadyExistsException e) {
-            logger.error("Error creating campaign: {}", e.getMessage());
+            LoggerService.logError(logger, "Error creating campaign: {}", e.getMessage());
             throw e;
         } catch (Exception e) {
-            logger.error("Unexpected error during campaign creation: {}", e.getMessage(), e);
+            LoggerService.logUnexpectedError(logger, "campaign creation", e.getMessage(), e);
             throw new RuntimeException("Failed to create campaign due to unexpected error", e);
         }
     }
 
     public CampaignDTO getCampaignById(Long id) {
-        logger.info("Retrieving campaign with ID: {}", id);
+        LoggerService.logRetrieveAttempt(logger, "Campaign", id);
 
         try {
             Campaign campaign = campaignRepository.findById(id)
                     .orElseThrow(() -> {
-                        logger.warn("Campaign with ID {} not found", id);
+                        LoggerService.logEntityNotFound(logger, "Campaign", id);
                         return new UserNotFoundException("Campaign with ID " + id + " not found");
                     });
 
-            logger.debug("Successfully retrieved campaign with ID: {}", id);
+            LoggerService.logRetrieveSuccess(logger, "Campaign", id);
             return campaignMapper.toDto(campaign);
 
         } catch (UserNotFoundException e) {
-            logger.error("Error retrieving campaign: {}", e.getMessage());
+            LoggerService.logError(logger, "Error retrieving campaign: {}", e.getMessage());
             throw e;
         } catch (Exception e) {
-            logger.error("Unexpected error retrieving campaign: {}", e.getMessage(), e);
+            LoggerService.logUnexpectedError(logger, "campaign retrieval", e.getMessage(), e);
             throw new RuntimeException("Failed to retrieve campaign due to unexpected error", e);
         }
     }
 
     public List<CampaignDTO> getCampaignsByUserId(Long userId) {
-        logger.info("Retrieving campaigns for user ID: {}", userId);
+        LoggerService.logRetrieveAttempt(logger, "Campaigns for user", userId);
 
         try {
             List<Campaign> campaigns = campaignRepository.findByUser_UserId(userId);
-            logger.debug("Retrieved {} campaigns for user ID: {}", campaigns.size(), userId);
+            LoggerService.logRetrieveSuccess(logger, "Campaigns for user", campaigns.size());
 
             return campaigns.stream()
                     .map(campaignMapper::toDto)
                     .collect(Collectors.toList());
 
         } catch (Exception e) {
-            logger.error("Unexpected error retrieving campaigns for user ID {}: {}",
-                    userId, e.getMessage(), e);
+            LoggerService.logUnexpectedError(logger, "retrieval of campaigns for user ID " + userId, e.getMessage(), e);
             throw new RuntimeException("Failed to retrieve campaigns due to unexpected error", e);
         }
     }
 
     public List<CampaignDTO> getAllCampaigns() {
-        logger.info("Retrieving all campaigns");
+        LoggerService.logRetrieveAttempt(logger, "All Campaigns", "all");
 
         try {
             List<Campaign> campaigns = campaignRepository.findAll();
-            logger.debug("Retrieved {} campaigns", campaigns.size());
+            LoggerService.logRetrieveSuccess(logger, "All Campaigns", campaigns.size());
 
             return campaigns.stream()
                     .map(campaignMapper::toDto)
                     .collect(Collectors.toList());
 
         } catch (Exception e) {
-            logger.error("Unexpected error retrieving all campaigns: {}", e.getMessage(), e);
+            LoggerService.logUnexpectedError(logger, "retrieval of all campaigns", e.getMessage(), e);
             throw new RuntimeException("Failed to retrieve campaigns due to unexpected error", e);
         }
     }
 
+    @Transactional
     public CampaignDTO updateCampaign(Long id, CampaignDTO campaignDTO) {
-        logger.info("Attempting to update campaign with ID: {}", id);
+        LoggerService.logUpdateAttempt(logger, "Campaign", id);
 
         try {
-            validateCampaignDTO(campaignDTO);
+            validationService.validateCampaignDTO(campaignDTO);
 
             Campaign campaign = campaignRepository.findById(id)
                     .orElseThrow(() -> {
-                        logger.warn("Campaign with ID {} not found", id);
+                        LoggerService.logEntityNotFound(logger, "Campaign", id);
                         return new UserNotFoundException("Campaign with ID " + id + " not found");
                     });
 
@@ -163,147 +158,89 @@ public class CampaignService {
                     !campaignDTO.getBankaUrl().equals(oldBankaUrl)) {
                 boolean exists = campaignRepository.existsByBankaUrl(campaignDTO.getBankaUrl());
                 if (exists) {
-                    logger.warn("Campaign update failed: Banka URL {} already exists",
-                            campaignDTO.getBankaUrl());
-                    throw new UserAlreadyExistsException(
-                            "Campaign with banka URL " + campaignDTO.getBankaUrl() + " already exists");
+                    LoggerService.logValidationFailure(logger, "Campaign with banka URL {} already exists", campaignDTO.getBankaUrl());
+                    throw new UserAlreadyExistsException("Campaign with banka URL " + campaignDTO.getBankaUrl() + " already exists");
                 }
             }
 
             campaignMapper.updateEntityFromDto(campaignDTO, campaign);
             Campaign savedCampaign = campaignRepository.save(campaign);
-            logger.info("Successfully updated campaign with ID: {}", id);
+            LoggerService.logUpdateSuccess(logger, "Campaign", id);
 
             if (StringUtils.hasText(savedCampaign.getBankaUrl()) &&
                     !savedCampaign.getBankaUrl().equals(oldBankaUrl)) {
                 try {
                     scrapingService.updateCampaignAmounts(savedCampaign);
-                    logger.debug("Updated amounts for campaign ID: {}", savedCampaign.getCampaignId());
+                    LoggerService.logDebug(logger, "Updated amounts for campaign ID: {}", savedCampaign.getCampaignId());
                 } catch (Exception e) {
-                    logger.warn("Failed to update amounts for campaign ID {}: {}",
-                            savedCampaign.getCampaignId(), e.getMessage());
+                    LoggerService.logWarn(logger, "Failed to update amounts for campaign ID {}: {}", savedCampaign.getCampaignId(), e.getMessage());
                 }
             }
 
             return campaignMapper.toDto(savedCampaign);
 
         } catch (UserValidationException | UserNotFoundException | UserAlreadyExistsException e) {
-            logger.error("Error updating campaign: {}", e.getMessage());
+            LoggerService.logError(logger, "Error updating campaign: {}", e.getMessage());
             throw e;
         } catch (Exception e) {
-            logger.error("Unexpected error during campaign update: {}", e.getMessage(), e);
+            LoggerService.logUnexpectedError(logger, "campaign update", e.getMessage(), e);
             throw new RuntimeException("Failed to update campaign due to unexpected error", e);
         }
     }
 
+    @Transactional
     public void deleteCampaign(Long id) {
-        logger.info("Attempting to delete campaign with ID: {}", id);
+        LoggerService.logDeleteAttempt(logger, "Campaign", id);
 
         try {
             if (!campaignRepository.existsById(id)) {
-                logger.warn("Campaign deletion failed: ID {} not found", id);
+                LoggerService.logEntityNotFound(logger, "Campaign", id);
                 throw new UserNotFoundException("Campaign with ID " + id + " not found");
             }
 
             campaignRepository.deleteById(id);
-            logger.info("Successfully deleted campaign with ID: {}", id);
+            LoggerService.logDeleteSuccess(logger, "Campaign", id);
 
         } catch (UserNotFoundException e) {
-            logger.error("Error deleting campaign: {}", e.getMessage());
+            LoggerService.logError(logger, "Error deleting campaign: {}", e.getMessage());
             throw e;
         } catch (Exception e) {
-            logger.error("Unexpected error during campaign deletion: {}", e.getMessage(), e);
+            LoggerService.logUnexpectedError(logger, "campaign deletion", e.getMessage(), e);
             throw new RuntimeException("Failed to delete campaign due to unexpected error", e);
         }
     }
 
+    @Transactional
     public CampaignDTO refreshCampaignData(Long id) {
-        logger.info("Attempting to refresh campaign data for ID: {}", id);
+        LoggerService.logRetrieveAttempt(logger, "Campaign data refresh", id);
 
         try {
             Campaign campaign = campaignRepository.findById(id)
                     .orElseThrow(() -> {
-                        logger.warn("Campaign with ID {} not found", id);
+                        LoggerService.logEntityNotFound(logger, "Campaign", id);
                         return new UserNotFoundException("Campaign with ID " + id + " not found");
                     });
 
             if (!StringUtils.hasText(campaign.getBankaUrl())) {
-                logger.warn("Refresh failed: Campaign ID {} has no banka URL", id);
+                LoggerService.logValidationFailure(logger, "Campaign ID {} has no banka URL", id);
                 throw new UserValidationException("Campaign has no banka URL to refresh from");
             }
 
             boolean updated = scrapingService.updateCampaignAmounts(campaign);
             if (!updated) {
-                logger.warn("Failed to refresh campaign data for ID: {}", id);
+                LoggerService.logWarn(logger, "Failed to refresh campaign data for ID: {}", id);
                 throw new RuntimeException("Failed to refresh campaign data from banka URL");
             }
 
-            logger.info("Successfully refreshed campaign data for ID: {}", id);
+            LoggerService.logRetrieveSuccess(logger, "Campaign data refresh", id);
             return campaignMapper.toDto(campaign);
 
         } catch (UserNotFoundException | UserValidationException e) {
-            logger.error("Error refreshing campaign data: {}", e.getMessage());
+            LoggerService.logError(logger, "Error refreshing campaign data: {}", e.getMessage());
             throw e;
         } catch (Exception e) {
-            logger.error("Unexpected error refreshing campaign data: {}", e.getMessage(), e);
+            LoggerService.logUnexpectedError(logger, "campaign data refresh", e.getMessage(), e);
             throw new RuntimeException("Failed to refresh campaign data due to unexpected error", e);
-        }
-    }
-
-    private void validateCampaignDTO(CampaignDTO campaignDTO) {
-        logger.debug("Validating campaign DTO");
-
-        if (!StringUtils.hasText(campaignDTO.getTitle())) {
-            logger.warn("Validation failed: Campaign title is required");
-            throw new UserValidationException("Campaign title is required");
-        }
-
-        if (campaignDTO.getTitle().length() > MAX_TITLE_LENGTH) {
-            logger.warn("Validation failed: Campaign title exceeds {} characters", MAX_TITLE_LENGTH);
-            throw new UserValidationException(
-                    "Campaign title must not exceed " + MAX_TITLE_LENGTH + " characters");
-        }
-
-        if (StringUtils.hasText(campaignDTO.getDescription()) &&
-                campaignDTO.getDescription().length() > MAX_DESCRIPTION_LENGTH) {
-            logger.warn("Validation failed: Campaign description exceeds {} characters",
-                    MAX_DESCRIPTION_LENGTH);
-            throw new UserValidationException(
-                    "Campaign description must not exceed " + MAX_DESCRIPTION_LENGTH + " characters");
-        }
-
-        if (StringUtils.hasText(campaignDTO.getBankaUrl()) &&
-                !isValidUrl(campaignDTO.getBankaUrl())) {
-            logger.warn("Validation failed: Invalid banka URL format: {}",
-                    campaignDTO.getBankaUrl());
-            throw new UserValidationException("Invalid banka URL format");
-        }
-
-        if (StringUtils.hasText(campaignDTO.getMainImgUrl()) &&
-                !isValidUrl(campaignDTO.getMainImgUrl())) {
-            logger.warn("Validation failed: Invalid main image URL format: {}",
-                    campaignDTO.getMainImgUrl());
-            throw new UserValidationException("Invalid main image URL format");
-        }
-
-        if (StringUtils.hasText(campaignDTO.getStatus())) {
-            try {
-                CampaignStatusType.valueOf(campaignDTO.getStatus());
-            } catch (IllegalArgumentException e) {
-                logger.warn("Validation failed: Invalid campaign status: {}",
-                        campaignDTO.getStatus());
-                throw new UserValidationException("Invalid campaign status: " +
-                        campaignDTO.getStatus());
-            }
-        }
-    }
-
-    private boolean isValidUrl(String url) {
-        try {
-            new URL(url);
-            return true;
-        } catch (Exception e) {
-            return false;
         }
     }
 }
