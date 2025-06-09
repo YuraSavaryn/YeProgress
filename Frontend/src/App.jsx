@@ -10,6 +10,8 @@ import ProjectDetail from './components/ProjectDetailPage';
 import EditProjectPage from './components/EditProject';
 import AboutPage from './components/AboutPage';
 import ContactsPage from './components/ContactsPage';
+import LegalPage from './components/LegalPage';
+import FAQPage from './components/FAQPage';
 
 const App = () => {
   return (
@@ -24,6 +26,9 @@ const App = () => {
       <Route path="/project/edit/:id" element={<EditProjectPage />}></Route>
       <Route path="/about" element={<AboutPage />} />
       <Route path="/contacts" element={<ContactsPage />} />
+      <Route path="/invest" element={<MainPage />} />
+      <Route path="/legal" element={<LegalPage />} />
+      <Route path="/faq" element={<FAQPage />} />
     </Routes>
   );
 };

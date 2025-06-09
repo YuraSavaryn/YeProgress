@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import '../index.css'
 
 const Footer = () => {
@@ -12,9 +13,9 @@ const Footer = () => {
         <div className="links">
           <div className="links-head">Для інвесторів</div>
           <ul>
-            <li><a href="#Invest">Як інвестувати</a></li>
-            <li><a href="#">Юридична інформація</a></li>
-            <li><a href="#">FAQ</a></li>
+            <li><Link to="/invest">Як інвестувати</Link></li>
+            <li><Link to="/legal">Юридична інформація</Link></li>
+            <li><Link to="/faq">FAQ</Link></li>
           </ul>
         </div>
 

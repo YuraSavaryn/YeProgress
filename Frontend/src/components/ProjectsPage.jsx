@@ -114,6 +114,13 @@ const ProjectsPage = () => {
     }
   };
 
+  const truncateDescription = (description) => {
+    if (description.length > 120) {
+      return description.substring(0, 117) + "...";
+    }
+    return description;
+  };
+
   return (
     <>
       <Header />
@@ -231,7 +238,7 @@ const ProjectsPage = () => {
                     <span>{project.category}</span>
                     </div> <br />
                   <Link to={`/project/${project.id}`} className="project-title-link">{project.title}</Link>
-                  <p className="project-excerpt">{project.description}</p>
+                  <p className="project-excerpt">{truncateDescription(project.description)}</p>
                   
                   <div className="project-progress">
                     <div className="progress-bar">

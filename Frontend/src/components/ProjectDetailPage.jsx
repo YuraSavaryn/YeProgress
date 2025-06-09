@@ -66,6 +66,7 @@ const ProjectDetail = () => {
 
     try {
       const response = await fetch(`http://localhost:8080/api/campaign-comments/${id}`, {
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Basic ${base64Credentials}`,
@@ -78,7 +79,7 @@ const ProjectDetail = () => {
           id: c.commentId,
           text: c.content,
           author: c.userName || "Анонім",
-          date: new Date(c.createdAt).toLocaleString(),
+          date: c.createdAt ? new Date(c.createdAt).toLocaleString() : "01.01.2000",
         }));
         setComments(formatted);
       }
@@ -141,7 +142,6 @@ const ProjectDetail = () => {
     }
 
     const addedComment = {
-      id: Date.now(),
       text: newComment,
       author: userData.name ?? "Анонім",
       date: new Date().toLocaleString(),

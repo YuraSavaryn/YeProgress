@@ -28,31 +28,37 @@ const MyProfile = () => {
 
   const [projects, setProjects] = useState([]);
 
-  const handleDeleteProject = async (projectId) => {
-  try {
-    const username = "admin";
-    const password = "admin";
-    const base64Credentials = btoa(`${username}:${password}`);
-
-    const response = await fetch(`http://localhost:8080/api/campaigns/${projectId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Basic ${base64Credentials}`
-      }
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+  const truncateDescription = (description) => {
+    if (description.length > 120) {
+      return description.substring(0, 117) + "...";
     }
+    return description;
+  };
 
-    setProjects((prevProjects) => prevProjects.filter(p => p.id !== projectId));
+  const handleDeleteProject = async (projectId) => {
+    try {
+      const username = "admin";
+      const password = "admin";
+      const base64Credentials = btoa(`${username}:${password}`);
+
+      const response = await fetch(`http://localhost:8080/api/campaigns/${projectId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Basic ${base64Credentials}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+      }
+
+      setProjects((prevProjects) => prevProjects.filter(p => p.id !== projectId));
     } catch (error) {
       console.error("Error deleting project:", error.message);
       alert("Не вдалося видалити проєкт.");
     }
   };
-
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -82,13 +88,13 @@ const MyProfile = () => {
             throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
           }
 
-        const sampleImages = [
-          "https://vechirniy.kyiv.ua/uploads/2022/12/16/photo_20221216_122956.jpg",
-          "https://f.discover.ua/location/2071/ruE82.jpg",
-          "https://funtime.kiev.ua/u/i/gallery/2021/05/park-imeni-shevchenko-6-609c2c85bd7cd.jpg",
-          "https://images.prom.ua/2272683959_rgb-korol-16yadergtx108032gb.jpg",
-          "https://www.finradnyk.site/wp-content/uploads/2023/08/startap.jpg"
-        ];
+          const sampleImages = [
+            "https://vechirniy.kyiv.ua/uploads/2022/12/16/photo_20221216_122956.jpg",
+            "https://f.discover.ua/location/2071/ruE82.jpg",
+            "https://funtime.kiev.ua/u/i/gallery/2021/05/park-imeni-shevchenko-6-609c2c85bd7cd.jpg",
+            "https://images.prom.ua/2272683959_rgb-korol-16yadergtx108032gb.jpg",
+            "https://www.finradnyk.site/wp-content/uploads/2023/08/startap.jpg"
+          ];
 
           const data = await response.json();
           setProfile((prev) => ({
@@ -127,8 +133,8 @@ const MyProfile = () => {
             title: proj.title,
             description: proj.description,
             image: proj.imgUrl && proj.imgUrl !== "https://placehold.co/600x400?text=No+Image"
-          ? proj.imgUrl
-          : sampleImages[index % sampleImages.length],
+              ? proj.imgUrl
+              : sampleImages[index % sampleImages.length],
             collected: Number(proj.currentAmount),
             goal: Number(proj.goalAmount),
             category: "Інше",
@@ -139,7 +145,6 @@ const MyProfile = () => {
 
           console.log("IDs проектів:", normalizedProjects.map(p => p.id));
           setProjects(normalizedProjects);
-
 
         } catch (error) {
           console.error("Error fetching user profile:", error.message);
@@ -170,31 +175,31 @@ const MyProfile = () => {
     setProfile((prev) => ({ ...prev, [name]: value }));
   };
 
-const handleVerification = async () => {
-  const user = auth.currentUser;
-  if (!user) {
-    alert("Користувач не авторизований");
-    return;
-  }
-
-  const username = "admin";
-  const password = "admin";
-  const base64Credentials = btoa(`${username}:${password}`);
-  const userId = user.uid;
-
-  try {
-    const response = await fetch(`http://localhost:8080/api/users/verified/${userId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Basic ${base64Credentials}`,
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+  const handleVerification = async () => {
+    const user = auth.currentUser;
+    if (!user) {
+      alert("Користувач не авторизований");
+      return;
     }
+
+    const username = "admin";
+    const password = "admin";
+    const base64Credentials = btoa(`${username}:${password}`);
+    const userId = user.uid;
+
+    try {
+      const response = await fetch(`http://localhost:8080/api/users/verified/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${base64Credentials}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+      }
 
       setProfile((prev) => ({ ...prev, isVerified: true }));
       alert("Профіль успішно верифіковано!");
@@ -204,80 +209,76 @@ const handleVerification = async () => {
     }
   };
 
-
   const handleSaveProfile = async () => {
-  try {
-    const user = auth.currentUser;
+    try {
+      const user = auth.currentUser;
 
-    if (!user) {
-      alert("Користувач не авторизований");
-      return;
-    }
+      if (!user) {
+        alert("Користувач не авторизований");
+        return;
+      }
 
-    const userId = user.uid;
-    const username = "admin";
-    const password = "admin";
-    const base64Credentials = btoa(`${username}:${password}`);
+      const userId = user.uid;
+      const username = "admin";
+      const password = "admin";
+      const base64Credentials = btoa(`${username}:${password}`);
 
-    console.log("Sending profile data:", profile);
+      console.log("Sending profile data:", profile);
 
-    const editResponse = await fetch(`http://localhost:8080/api/users/${userId}`, {
-      method: "PUT", 
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Basic ${base64Credentials}`,
-      },
-      body: JSON.stringify(profile),
-    });
+      const editResponse = await fetch(`http://localhost:8080/api/users/${userId}`, {
+        method: "PUT", 
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${base64Credentials}`,
+        },
+        body: JSON.stringify(profile),
+      });
 
-    if (!editResponse.ok) {
-      const errorText = await editResponse.text();
-      throw new Error(`HTTP error! Status: ${editResponse.status}, Message: ${errorText}`);
-    }
+      if (!editResponse.ok) {
+        const errorText = await editResponse.text();
+        throw new Error(`HTTP error! Status: ${editResponse.status}, Message: ${errorText}`);
+      }
 
-    const updatedProfile = await editResponse.json();
-    console.log("Updated profile response:", updatedProfile);
+      const updatedProfile = await editResponse.json();
+      console.log("Updated profile response:", updatedProfile);
 
-    setProfile((prev) => ({
-      ...prev,
-      ...updatedProfile,
-    }));
+      setProfile((prev) => ({
+        ...prev,
+        ...updatedProfile,
+      }));
 
       setEditMode(false);
       alert("Профіль успішно оновлено!");
     } catch (error) {
       console.error("Помилка при оновленні профілю:", error.message);
-    alert("Не вдалося оновити профіль. Спробуйте пізніше.");
-      }
-    };
+      alert("Не вдалося оновити профіль. Спробуйте пізніше.");
+    }
+  };
 
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-      const handleAvatarChange = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    const previewUrl = URL.createObjectURL(file);
+    setPreviewAvatar(previewUrl);
 
-        const previewUrl = URL.createObjectURL(file);
-        setPreviewAvatar(previewUrl);
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error("Користувач не авторизований");
 
-        try {
-          const user = auth.currentUser;
-          if (!user) throw new Error("Користувач не авторизований");
+      const storage = getStorage();
+      const storageRef = ref(storage, `avatars/${user.uid}`);
+      
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
 
-          const storage = getStorage();
-          const storageRef = ref(storage, `avatars/${user.uid}`);
-          
-          await uploadBytes(storageRef, file);
-          const url = await getDownloadURL(storageRef);
-
-          setProfile((prev) => ({ ...prev, avatar: url }));
-          setPreviewAvatar(null);
-        } catch (error) {
-          console.error("Помилка при завантаженні аватара:", error);
-          alert("Не вдалося завантажити аватар");
-        }
-      };
-
-
+      setProfile((prev) => ({ ...prev, avatar: url }));
+      setPreviewAvatar(null);
+    } catch (error) {
+      console.error("Помилка при завантаженні аватара:", error);
+      alert("Не вдалося завантажити аватар");
+    }
+  };
 
   return (
     <>
@@ -298,22 +299,21 @@ const handleVerification = async () => {
             <div className="name-section">
               {editMode ? (
                 <>
-                <input
-                  type="text"
-                  name="name"
-                  value={profile.name}
-                  onChange={handleInputChange}
-                  className="profile-input name-input"
-                />
-                <input
-                  type="text"
-                  name="name"
-                  value={profile.surname}
-                  onChange={handleInputChange}
-                  className="profile-input name-input"
-                />
+                  <input
+                    type="text"
+                    name="name"
+                    value={profile.name}
+                    onChange={handleInputChange}
+                    className="profile-input name-input"
+                  />
+                  <input
+                    type="text"
+                    name="name"
+                    value={profile.surname}
+                    onChange={handleInputChange}
+                    className="profile-input name-input"
+                  />
                 </>
-                
               ) : (
                 <h2>{profile.name + " " + profile.surname}</h2>
               )}
@@ -446,7 +446,6 @@ const handleVerification = async () => {
               </button>
             </div>
 
-
             <div className="my-projects">
               <h2 className="header-my-projects">Мої проєкти</h2>
               <div className="project-cards-profile">
@@ -459,7 +458,7 @@ const handleVerification = async () => {
                       <span className="project-category">{project.category}</span>
                       <span className="project-active">{project.active}</span>
                       <h3 className="project-title">{project.title}</h3>
-                      <p className="project-excerpt">{project.description}</p>
+                      <p className="project-excerpt">{truncateDescription(project.description)}</p>
                       <div className="project-progress">
                         <div className="progress-bar">
                           <div

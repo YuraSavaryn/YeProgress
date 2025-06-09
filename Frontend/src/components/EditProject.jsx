@@ -102,7 +102,7 @@ function EditProjectPage() {
           description: formData.description,
           goal: Number(formData.goal) || 0,
           category: formData.category,
-          monoLink: formData.monoLink,
+          bankaUrl: formData.bankaUrl,
           image: formData.image || "https://placehold.co/600x400?text=No+Image",
           firebaseId: user.uid,
           collected: Number(formData.collected) || 0,
@@ -179,37 +179,13 @@ function EditProjectPage() {
                 </select>
               </div>
             </div>
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="goal">Ціль (грн)</label>
-                <input
-                  type="number"
-                  id="goal"
-                  name="goal"
-                  value={formData.goal}
-                  onChange={handleChange}
-                  placeholder="Введіть цільову суму"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="collected">Зібрано (грн)</label>
-                <input
-                  type="number"
-                  id="collected"
-                  name="collected"
-                  value={formData.collected}
-                  onChange={handleChange}
-                  placeholder="Введіть зібрану суму"
-                />
-              </div>
-            </div>
             <div className="form-group">
               <label htmlFor="monoLink">Посилання на mono-банку</label>
               <input
                 type="url"
                 id="monoLink"
                 name="monoLink"
-                value={formData.monoLink}
+                value={formData.bankaUrl}
                 onChange={handleChange}
                 placeholder="https://send.monobank.ua/..."
               />
