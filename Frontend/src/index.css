@@ -170,6 +170,12 @@ nav li:last-child a::after {
   gap: 1.5rem;
 }
 
+button {
+  border: none;
+  outline: none;
+}
+
+
 .btn {
   padding: 1rem 2rem;
   border-radius: 30px;
@@ -257,14 +263,14 @@ nav li:last-child a::after {
 }
 
 .project-image {
-  height: 230px;
   width: 100%;
+  height: 200px;
   overflow: hidden;
 }
 
 .project-image img {
   width: 100%;
-  height: 100%;
+  height: 200px;
   object-fit: cover;
   transition: transform 0.5s ease;
 }
@@ -3061,4 +3067,26 @@ footer a:hover {
     width: 100%;
     padding: 0.8rem;
   }
+}
+
+.progress-info span {
+  display: block;
+  
+}
+
+.project-image-container img {
+  width: 100%; /* Займає всю доступну ширину контейнера */
+  max-width: 800px; /* Фіксована максимальна ширина */
+  height: auto; /* Зберігає пропорції */
+  object-fit: cover; /* Обрізає зайве, якщо потрібно */
+  border-radius: 8px; /* Опціонально */
+}
+
+.project-description {
+  max-width: 800px; /* Обмеження ширини тексту */
+  word-wrap: break-word; /* Переносить довгі слова */
+}
+
+.project-info {
+  overflow: hidden; /* Не дає контенту виходити за межі */
 }

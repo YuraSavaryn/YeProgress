@@ -55,6 +55,60 @@ const MainPage = () => {
       }
     };
 
+    useEffect(() => {
+      const fetchProjects = async () => {
+        try {
+          const username = "admin";
+          const password = "admin";
+          const base64Credentials = btoa(`${username}:${password}`);
+    
+          const response = await fetch(`http://localhost:8080/api/campaigns`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Basic ${base64Credentials}`,
+            },
+          });
+    
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+          }
+    
+          const campaigns = await response.json();
+    
+          const sampleImages = [
+            "https://vechirniy.kyiv.ua/uploads/2022/12/16/photo_20221216_122956.jpg",
+            "https://f.discover.ua/location/2071/ruE82.jpg",
+            "https://funtime.kiev.ua/u/i/gallery/2021/05/park-imeni-shevchenko-6-609c2c85bd7cd.jpg",
+            "https://images.prom.ua/2272683959_rgb-korol-16yadergtx108032gb.jpg",
+            "https://www.finradnyk.site/wp-content/uploads/2023/08/startap.jpg"
+          ];
+    
+          const normalizedData = campaigns.map((project, index) => ({
+            id: project.campaignId ?? index + 1,
+            title: project.title,
+            description: project.description,
+            goal: project.goalAmount ?? 0,
+            collected: project.currentAmount ?? 0,
+            monoLink: project.bankaUrl ?? "",
+            image:
+              project.mainImgUrl && project.mainImgUrl !== "https://placehold.co/600x400?text=No+Image"
+                ? project.mainImgUrl
+                : sampleImages[index % sampleImages.length],
+            category: project.category ?? "Відбудова", // якщо є поле category
+          }));
+    
+          setProjects(normalizedData);
+    
+        } catch (error) {
+          console.error("Error fetching projects:", error.message);
+        }
+      };
+    
+      fetchProjects();
+    }, []);
+
     return(
         <>
     <Header />
@@ -76,7 +130,7 @@ const MainPage = () => {
         <div className="container">
             <h2 className="section-title">Поточні проєкти</h2>
             <div className="project-cards">
-              {projects.map(project => (
+              {projects.slice(0, 3).map(project => (
                 <div key={project.id} className="project-card">
                   <div className="project-image">
                     <img src={project.image} alt={project.title} />

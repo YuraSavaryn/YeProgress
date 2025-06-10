@@ -160,12 +160,11 @@ const ProjectsPage = () => {
               </div>
               
               <button 
-                onClick={handleCreateProject} 
+                onClick={handleCreateClick} 
                 className="btn btn-first create-btn"
               >
                 Створити проєкт
               </button>
-
             </div>
           </div>
 
@@ -266,7 +265,7 @@ const ProjectsPage = () => {
                       ></div>
                     </div>
                       <div className="progress-info">
-                        <span className="block">Зібрано: {project.collected.toLocaleString()} ₴</span><br />
+                        <span className="block">Зібрано: {project.collected.toLocaleString()} ₴</span>
                         <span className="block">Ціль: {project.goal.toLocaleString()} ₴</span>
                       </div>
 

@@ -17,8 +17,8 @@ const CreateProjectPage = () => {
     bankaUrl: "",        
     image: null,
     imageUrl: "",
-    status: "active",    
-    approxDeadline: "",  
+    status: "IN_PROGRESS",    
+    approxDeadline: "",
   });
 
   const [imagePreview, setImagePreview] = useState(null);
@@ -55,7 +55,7 @@ const CreateProjectPage = () => {
         category: newProject.category,
         bankaUrl: newProject.bankaUrl,
         mainImgUrl: newProject.imageUrl,
-        status: newProject.status ?? "Активний",
+        status: newProject.status ?? "IN_PROGRESS",
         approxDeadline: newProject.approxDeadline ? new Date(newProject.approxDeadline).toISOString() : null,
         createdDate: new Date().toISOString(),
         firebaseId: user.uid,

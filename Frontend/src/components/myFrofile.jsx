@@ -132,8 +132,8 @@ const MyProfile = () => {
             id: proj.campaignId ?? index,
             title: proj.title,
             description: proj.description,
-            image: proj.imgUrl && proj.imgUrl !== "https://placehold.co/600x400?text=No+Image"
-              ? proj.imgUrl
+            image: proj.mainImgUrl && proj.mainImgUrl !== "https://placehold.co/600x400?text=No+Image"
+              ? proj.mainImgUrl
               : sampleImages[index % sampleImages.length],
             collected: Number(proj.currentAmount),
             goal: Number(proj.goalAmount),

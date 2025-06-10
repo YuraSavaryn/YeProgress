@@ -201,12 +201,6 @@ const ProjectDetail = () => {
 
             <div className="project-actions project-detail-actions">
               <button
-                onClick={() => navigate(`/project/edit/${id}`)}
-                className="btn btn-first project-detail-btn"
-              >
-                Редагувати
-              </button>
-              <button
                 onClick={() => navigate("/projects")}
                 className="btn btn-second project-detail-btn"
               >
