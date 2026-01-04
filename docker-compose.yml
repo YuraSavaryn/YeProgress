@@ -1,0 +1,58 @@
+services:
+  postgres:
+    container_name: ye_progress_db
+    image: postgres:17-alpine
+    networks:
+      - backend
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    #    ports:
+    #      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+  backend:
+    container_name: ye_progress_backend
+    build: ./Backend
+    networks:
+      - backend
+      - frontend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SERVER_PORT: 8081
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    container_name: ye_progress_frontend
+    build: ./Frontend
+    networks:
+      - frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      backend:
+        condition: service_started
+
+volumes:
+  postgres-data:
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
