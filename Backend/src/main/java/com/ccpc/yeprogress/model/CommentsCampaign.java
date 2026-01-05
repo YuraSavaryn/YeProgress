@@ -22,11 +22,13 @@ public class CommentsCampaign {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "campaing_id")
+    @JoinColumn(name = "campaign_id")
     private Campaign campaign;
 
     @Column(columnDefinition = "TEXT")
     private String content;
+
+    private Boolean complaint;
 
     private LocalDateTime createdAt;
 }

@@ -72,13 +72,14 @@ const ProjectDetail = () => {
           Authorization: `Basic ${base64Credentials}`,
         },
       });
-
+//прописати логіку отримання імені користувача через його айді
       if (response.ok) {
         const data = await response.json();
         const formatted = data.map((c) => ({
           id: c.commentId,
           text: c.content,
           author: c.userName || "Анонім",
+          complaint: c.complaint,
           date: c.createdAt ? new Date(c.createdAt).toLocaleString() : "01.01.2000",
         }));
         setComments(formatted);
@@ -125,6 +126,7 @@ const ProjectDetail = () => {
       userId: userId,
       campaignId: parseInt(id),
       content: newComment,
+      complaint: false,
       createdAt: new Date().toISOString(),
     };
 
@@ -144,6 +146,7 @@ const ProjectDetail = () => {
     const addedComment = {
       text: newComment,
       author: userData.name ?? "Анонім",
+      compalint: false,
       date: new Date().toLocaleString(),
     };
 

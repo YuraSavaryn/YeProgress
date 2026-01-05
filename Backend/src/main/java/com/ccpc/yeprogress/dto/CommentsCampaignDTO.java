@@ -14,5 +14,6 @@ public class CommentsCampaignDTO {
     private Long userId;
     private Long campaignId;
     private String content;
+    private Boolean complaint;
     private LocalDateTime createdAt;
 }
