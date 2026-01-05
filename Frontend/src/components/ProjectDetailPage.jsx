@@ -72,16 +72,40 @@ const ProjectDetail = () => {
           Authorization: `Basic ${base64Credentials}`,
         },
       });
-//прописати логіку отримання імені користувача через його айді
+
       if (response.ok) {
         const data = await response.json();
+
+        const userIds = [...new Set(data.map((c) => c.userId))];
+          
+        let usersMap = {};
+
+        if (userIds.length > 0) {
+          const usersResponse = await fetch(`http://localhost:8080/api/users/comments/${userIds}`, {
+            method: "GET", 
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Basic ${base64Credentials}`,
+            },
+          });
+
+          if (usersResponse.ok) {
+            const usersList = await usersResponse.json();
+            
+            usersList.forEach(user => {
+              usersMap[user.userId] = user.name + " " + (user.surname || ""); 
+            });
+          }
+        }
+
         const formatted = data.map((c) => ({
           id: c.commentId,
           text: c.content,
-          author: c.userName || "Анонім",
+          author: usersMap[c.userId] || "Анонім",
           complaint: c.complaint,
           date: c.createdAt ? new Date(c.createdAt).toLocaleString() : "01.01.2000",
         }));
+
         setComments(formatted);
       }
     } catch (err) {
@@ -145,7 +169,7 @@ const ProjectDetail = () => {
 
     const addedComment = {
       text: newComment,
-      author: userData.name ?? "Анонім",
+      author: (userData.name + " " + (userData.surname || "")) || "Анонім",
       compalint: false,
       date: new Date().toLocaleString(),
     };

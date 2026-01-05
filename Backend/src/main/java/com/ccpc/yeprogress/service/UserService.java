@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -90,6 +91,32 @@ public class UserService {
 
             LoggerService.logRetrieveSuccess(logger, "user", id);
             return user;
+
+        } catch (UserNotFoundException e) {
+            LoggerService.logError(logger, "Error retrieving user: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            LoggerService.logUnexpectedError(logger, "user retrieval", e.getMessage(), e);
+            throw new RuntimeException("Failed to retrieve user due to unexpected error", e);
+        }
+    }
+
+    public List<UserDTO> getUsersDTOById(List<Long> ids) {
+        LoggerService.logRetrieveAttempt(logger, "users list of size", ids.size());
+
+        try {
+            List<User> users = userRepository.findAllById(ids);
+
+            if (users.isEmpty() && !ids.isEmpty()) {
+                LoggerService.logEntityNotFound(logger, "Users from list", ids.toString());
+                return Collections.emptyList();
+            }
+
+            LoggerService.logRetrieveSuccess(logger, "users retrieved count", users.size());
+
+            return users.stream()
+                    .map(userMapper::toDto)
+                    .collect(Collectors.toList());
 
         } catch (UserNotFoundException e) {
             LoggerService.logError(logger, "Error retrieving user: {}", e.getMessage());

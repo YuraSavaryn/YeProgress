@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -32,6 +33,12 @@ public class UserController {
     public ResponseEntity<UserDTO> getUserById(@PathVariable String uid) {
         UserDTO UserDTO = userService.getUserDTOByFirebaseId(uid);
         return ResponseEntity.ok(UserDTO);
+    }
+
+    @GetMapping("/comments/{ids}")
+    public ResponseEntity<List<UserDTO>> getUserIdByComments(@PathVariable List<Long> ids) {
+        List<UserDTO> users = userService.getUsersDTOById(ids);
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping
