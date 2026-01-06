@@ -260,18 +260,23 @@ button {
   overflow: hidden;
   box-shadow: var(--card-shadow);
   transition: var(--hover-transition);
+  /* НОВІ ВЛАСТИВОСТІ */
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Розтягує картку на всю висоту комірки grid */
 }
 
 .project-image {
   width: 100%;
-  height: 200px;
+  height: 200px; /* Фіксована висота */
   overflow: hidden;
+  flex-shrink: 0; /* Забороняємо стискатися, якщо контенту багато */
 }
 
 .project-image img {
   width: 100%;
-  height: 200px;
-  object-fit: cover;
+  height: 100%;
+  object-fit: cover; /* Обрізає зайве, зберігаючи пропорції (не розтягує) */
   transition: transform 0.5s ease;
 }
 
@@ -294,7 +299,7 @@ button {
   background-color: var(--light-color);
   border-radius: 20px;
   font-size: 0.85rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem; /* Було 1rem, зменшуємо відстань до назви */
   color: white;
   font-weight: 500;
 }
@@ -309,16 +314,34 @@ button {
 
 .project-title-link {
   font-size: 1.5rem;
-  margin-top: 0.5rem;
-  margin-bottom: 1rem;
+  margin-top: 0.2rem;     /* Зменшили з 0.5rem */
+  margin-bottom: 0.5rem;  /* Зменшили з 1rem. Це головна причина великої відстані */
   color: var(--secondary-color);
   font-weight: 600;
+  
+  /* Обмеження та резервування місця */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
+  /* ВАЖЛИВО: min-height гарантує, що сітка не поїде. 
+     Але через малий margin-bottom текст підтягнеться вище. */
+  min-height: 2rem; 
+  line-height: 1.2;   /* Фіксуємо висоту рядка для точного розрахунку */
 }
 
 .project-excerpt {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem; /* Було 1.5rem, трохи компактніше */
   color: #666;
-  line-height: 1.6;
+  line-height: 1.5;    /* Трохи зменшуємо міжрядковий інтервал */
+  
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .btn-primary {
@@ -329,6 +352,7 @@ button {
   font-weight: 500;
   transition: var(--hover-transition);
   display: inline-block;
+  align-self: flex-start;
 }
 
 .btn-primary:hover {
@@ -1107,7 +1131,8 @@ footer a:hover {
 }
 
 .project-progress {
-  margin: 1.5rem 0;
+  margin-top: auto; /* Притискає прогрес і кнопку до низу */
+  margin-bottom: 1.5rem;
 }
 
 .progress-bar {
@@ -3089,4 +3114,250 @@ footer a:hover {
 
 .project-info {
   overflow: hidden; /* Не дає контенту виходити за межі */
+}
+
+/* ===== COMMENT BUTTONS ALIGNMENT ===== */
+
+.comment-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center; /* Центрує кнопки по вертикалі */
+  margin-top: 1rem;
+}
+
+/* Однакова висота та паддінги для обох кнопок */
+.project-detail-comment-btn,
+.project-detail-report-btn {
+  height: 48px; /* Фіксована висота для вирівнювання */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0; /* Прибираємо зайві відступи */
+  font-size: 1rem;
+  border-radius: 25px;
+}
+
+/* Стиль червоної кнопки "Поскаржитися" */
+.btn-complaint {
+  background-color: #ff5252;
+  color: white;
+  border: none;
+  padding: 0 2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--hover-transition);
+  box-shadow: 0 4px 10px rgba(255, 82, 82, 0.3);
+}
+
+.btn-complaint:hover {
+  background-color: #ff1f1f;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(255, 82, 82, 0.5);
+}
+
+/* Адаптивність для кнопок */
+@media (max-width: 576px) {
+  .comment-actions {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  
+  .project-detail-comment-btn,
+  .project-detail-report-btn {
+    width: 100%;
+  }
+}
+
+/* ===== REPORT FORM STYLES (UPDATED) ===== */
+
+.report-form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: blur(5px);
+  padding: 1rem;
+}
+
+.report-form-modal {
+  background: white;
+  border-radius: 15px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+  position: relative;
+  animation: formAppear 0.3s ease-out forwards;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Щоб червона шапка не вилазила за кути */
+}
+
+/* Червона шапка як на фото */
+.report-form-header {
+  background-color: #ff5252;
+  color: white;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.report-form-header h3 {
+  margin: 0;
+  color: white; /* Текст заголовка білий */
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: rgba(255, 255, 255, 0.8); /* Білий хрестик */
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.3s;
+}
+
+.close-btn:hover {
+  color: white;
+}
+
+/* Тіло форми з відступами */
+.report-form-body {
+  padding: 2rem;
+}
+
+.report-project-info {
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  color: #333;
+}
+
+.report-form .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.report-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.report-textarea {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.3s;
+  resize: vertical;
+  background-color: #f9f9f9;
+}
+
+.report-textarea:focus {
+  border-color: #ff5252; /* Червона обводка при фокусі */
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 82, 82, 0.1);
+  background-color: white;
+}
+
+.char-counter {
+  text-align: right;
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 0.3rem;
+}
+
+.report-form-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.report-form-buttons button {
+  flex: 1;
+  padding: 0.8rem;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+}
+
+/* Кнопка "Надіслати" - червона */
+.btn-danger {
+  background-color: #ff5252;
+  color: white;
+  box-shadow: 0 4px 10px rgba(255, 82, 82, 0.3);
+  transition: all 0.3s;
+}
+
+.btn-danger:hover {
+  background-color: #ff1f1f;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(255, 82, 82, 0.4);
+}
+
+/* Кнопка "Скасувати" - сіра/прозора */
+.btn-second-grey {
+  background-color: transparent;
+  color: #666;
+  border: 1px solid transparent !important;
+  transition: all 0.3s;
+}
+
+.btn-second-grey:hover {
+  color: #333;
+  background-color: #f0f0f0;
+}
+
+.report-form-note {
+  margin-top: 1.5rem;
+  text-align: center;
+  color: #999;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+/* Стилі для коментаря-скарги */
+.complaint-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background-color: #ff5252;
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 2px 5px rgba(255, 82, 82, 0.3);
+}
+
+.complaint-item {
+  border-left: 4px solid #ff5252 !important; /* Червона лінія зліва для акценту */
+  background-color: #fff5f5; /* Легкий червоний фон */
+}
+
+/* Адаптивність для бейджа */
+@media (max-width: 480px) {
+  .complaint-badge {
+    position: static;
+    display: inline-flex;
+    margin-bottom: 0.5rem;
+  }
 }

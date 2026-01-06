@@ -12,6 +12,7 @@ import AboutPage from './components/AboutPage';
 import ContactsPage from './components/ContactsPage';
 import LegalPage from './components/LegalPage';
 import FAQPage from './components/FAQPage';
+import ReportForm from './components/ReportForm'; // Додали імпорт ReportForm
 
 const App = () => {
   return (
@@ -19,11 +20,12 @@ const App = () => {
       <Route path="/" element={<MainPage />} />
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/account" element={<MyProfile />}></Route>
+      <Route path="/account" element={<MyProfile />} />
       <Route path="/projects" element={<ProjectsPage />} />
       <Route path="/create-project" element={<CreateProjectPage />} />
-      <Route path="/project/:id" element={<ProjectDetail />}></Route>
-      <Route path="/project/edit/:id" element={<EditProjectPage />}></Route>
+      <Route path="/project/:id" element={<ProjectDetail />} />
+      <Route path="/project/edit/:id" element={<EditProjectPage />} />
+      <Route path="/report/:projectId" element={<ReportForm />} /> {/* Додали маршрут для форми скарги */}
       <Route path="/about" element={<AboutPage />} />
       <Route path="/contacts" element={<ContactsPage />} />
       <Route path="/invest" element={<MainPage />} />

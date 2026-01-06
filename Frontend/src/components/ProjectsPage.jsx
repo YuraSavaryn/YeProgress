@@ -47,11 +47,7 @@ const ProjectsPage = () => {
       const campaigns = await response.json();
 
       const sampleImages = [
-        "https://vechirniy.kyiv.ua/uploads/2022/12/16/photo_20221216_122956.jpg",
-        "https://f.discover.ua/location/2071/ruE82.jpg",
-        "https://funtime.kiev.ua/u/i/gallery/2021/05/park-imeni-shevchenko-6-609c2c85bd7cd.jpg",
-        "https://images.prom.ua/2272683959_rgb-korol-16yadergtx108032gb.jpg",
-        "https://www.finradnyk.site/wp-content/uploads/2023/08/startap.jpg"
+        "https://st2.depositphotos.com/40945364/42167/v/450/depositphotos_421677674-stock-illustration-hands-holding-carton-box-banner.jpg",
       ];
 
       const normalizedData = campaigns.map((project, index) => ({
@@ -65,7 +61,7 @@ const ProjectsPage = () => {
           project.mainImgUrl && project.mainImgUrl !== "https://placehold.co/600x400?text=No+Image"
             ? project.mainImgUrl
             : sampleImages[index % sampleImages.length],
-        category: project.category ?? "Відбудова", // якщо є поле category
+        category: project.category ?? "Відбудова", 
       }));
 
       setProjects(normalizedData);
@@ -129,13 +125,6 @@ const ProjectsPage = () => {
       };
       reader.readAsDataURL(file);
     }
-  };
-
-  const truncateDescription = (description) => {
-    if (description.length > 120) {
-      return description.substring(0, 117) + "...";
-    }
-    return description;
   };
 
   return (
@@ -255,7 +244,7 @@ const ProjectsPage = () => {
                     <span>{project.category}</span>
                     </div> <br />
                   <Link to={`/project/${project.id}`} className="project-title-link">{project.title}</Link>
-                  <p className="project-excerpt">{truncateDescription(project.description)}</p>
+                  <p className="project-excerpt">{project.description}</p>
                   
                   <div className="project-progress">
                     <div className="progress-bar">

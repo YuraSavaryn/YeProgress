@@ -4,6 +4,7 @@ import auth from "../auth";
 import "../index.css";
 import Header from "./Header";
 import Footer from "./Footer";
+import ReportForm from "./ReportForm";
 
 const ProjectDetail = () => {
   const { id } = useParams();
@@ -13,176 +14,179 @@ const ProjectDetail = () => {
   const [error, setError] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
+  
+  const [showReportForm, setShowReportForm] = useState(false);
+
+  const baseImage = "https://cdn.abo.media/upload/article/res/770-430/f9bd7oale81czy5znmjf.jpg";
 
   useEffect(() => {
-  const fetchProject = async () => {
-    try {
+    const fetchProject = async () => {
+      try {
+        const username = "admin";
+        const password = "admin";
+        const base64Credentials = btoa(`${username}:${password}`);
+
+        const response = await fetch(`http://localhost:8080/api/campaigns/${id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Basic ${base64Credentials}`,
+          },
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+        }
+
+        const data = await response.json();
+
+        const normalizedProject = {
+          ...data,
+          currentAmount: data.currentAmount ?? 0,
+          goalAmount: data.goalAmount ?? 0,
+          image: data.mainImgUrl || "https://st2.depositphotos.com/40945364/42167/v/450/depositphotos_421677674-stock-illustration-hands-holding-carton-box-banner.jpg",
+          bankaUrl: data.bankaUrl ?? "Користувач не залишив банки :(",
+          category: data.category || "Відбудова",
+        };
+
+        setProject(normalizedProject);
+        setLoading(false);
+      } catch (error) {
+        setError(error.message);
+        setLoading(false);
+      }
+    };
+
+    fetchProject();
+  }, [id]);
+
+  useEffect(() => {
+    const fetchComments = async () => {
       const username = "admin";
       const password = "admin";
       const base64Credentials = btoa(`${username}:${password}`);
 
-      const response = await fetch(`http://localhost:8080/api/campaigns/${id}`, {
+      try {
+        const response = await fetch(`http://localhost:8080/api/campaign-comments/campaign/${id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Basic ${base64Credentials}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const userIds = [...new Set(data.map((c) => c.userId))];
+          let usersMap = {};
+
+          if (userIds.length > 0) {
+            const usersResponse = await fetch(`http://localhost:8080/api/users/comments/${userIds}`, {
+              method: "GET", 
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Basic ${base64Credentials}`,
+              },
+            });
+
+            if (usersResponse.ok) {
+              const usersList = await usersResponse.json();
+              usersList.forEach(user => {
+                usersMap[user.userId] = user.name + " " + (user.surname || ""); 
+              });
+            }
+          }
+
+          const formatted = data.map((c) => ({
+            id: c.commentId,
+            text: c.content,
+            author: usersMap[c.userId] || "Анонім",
+            complaint: c.complaint, 
+            date: c.createdAt ? new Date(c.createdAt).toLocaleString() : "01.01.2000",
+          }));
+
+          // Сортуємо так, щоб нові були зверху (опціонально)
+          setComments(formatted.reverse());
+        }
+      } catch (err) {
+        console.error("Помилка при завантаженні коментарів:", err.message);
+      }
+    };
+
+    fetchComments();
+  }, [id]);
+
+  const handleAddComment = async () => {
+    if (newComment.trim() === "") return;
+
+    try {
+      if (!auth.currentUser) {
+        alert("Будь ласка, увійдіть, щоб залишити коментар.");
+        return;
+      }
+      const userUid = auth.currentUser;
+      const username = "admin";
+      const password = "admin";
+      const base64Credentials = btoa(`${username}:${password}`);
+
+      const userResponse = await fetch(`http://localhost:8080/api/users/${userUid.uid}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Basic ${base64Credentials}`,
         },
+      });
+
+      if (!userResponse.ok) {
+        throw new Error(`Не вдалося отримати користувача`);
+      }
+
+      const userData = await userResponse.json();
+      const userId = userData.userId;
+
+      const commentPayload = {
+        userId: userId,
+        campaignId: parseInt(id),
+        content: newComment,
+        complaint: false,
+        createdAt: new Date().toISOString(),
+      };
+
+      const response = await fetch("http://localhost:8080/api/campaign-comments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${base64Credentials}`,
+        },
+        body: JSON.stringify(commentPayload),
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+        throw new Error("Не вдалося надіслати коментар");
       }
 
-      const data = await response.json();
-
-      // Додатково нормалізуй дані, якщо треба:
-      const normalizedProject = {
-        ...data,
-        currentAmount: data.currentAmount ?? 0,
-        goalAmount: data.goalAmount ?? 0,
-        image: data.mainImgUrl || "https://placehold.co/600x400?text=No+Image",
-        bankaUrl: data.bankaUrl ?? "Користувач не залишив банки :(",
-        category: data.category || "Відбудова",
+      const addedComment = {
+        id: Date.now(),
+        text: newComment,
+        author: (userData.name + " " + (userData.surname || "")) || "Анонім",
+        complaint: false,
+        date: new Date().toLocaleString(),
       };
 
-      setProject(normalizedProject);
-      setLoading(false);
-    } catch (error) {
-      setError(error.message);
-      setLoading(false);
-    }
-  };
+      setComments([addedComment, ...comments]);
+      setNewComment("");
 
-  fetchProject();
-}, [id]);
-
-
-  useEffect(() => {
-  const fetchComments = async () => {
-    const username = "admin";
-    const password = "admin";
-    const base64Credentials = btoa(`${username}:${password}`);
-
-    try {
-      const response = await fetch(`http://localhost:8080/api/campaign-comments/campaign/${id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Basic ${base64Credentials}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-
-        const userIds = [...new Set(data.map((c) => c.userId))];
-          
-        let usersMap = {};
-
-        if (userIds.length > 0) {
-          const usersResponse = await fetch(`http://localhost:8080/api/users/comments/${userIds}`, {
-            method: "GET", 
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Basic ${base64Credentials}`,
-            },
-          });
-
-          if (usersResponse.ok) {
-            const usersList = await usersResponse.json();
-            
-            usersList.forEach(user => {
-              usersMap[user.userId] = user.name + " " + (user.surname || ""); 
-            });
-          }
-        }
-
-        const formatted = data.map((c) => ({
-          id: c.commentId,
-          text: c.content,
-          author: usersMap[c.userId] || "Анонім",
-          complaint: c.complaint,
-          date: c.createdAt ? new Date(c.createdAt).toLocaleString() : "01.01.2000",
-        }));
-
-        setComments(formatted);
-      }
     } catch (err) {
-      console.error("Помилка при завантаженні коментарів:", err.message);
+      console.error("Помилка при додаванні коментаря:", err.message);
+      alert("Не вдалося надіслати коментар.");
     }
   };
 
-  fetchComments();
-}, [id]);
-
-
-  const handleAddComment = async () => {
-  if (newComment.trim() === "") return;
-
-  try {
-    if (!auth.currentUser) {
-      alert("Будь ласка, увійдіть, щоб залишити коментар.");
-      return;
-    }
-    const userUid = auth.currentUser;
-
-    const username = "admin";
-    const password = "admin";
-    const base64Credentials = btoa(`${username}:${password}`);
-
-    const userResponse = await fetch(`http://localhost:8080/api/users/${userUid.uid}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Basic ${base64Credentials}`,
-      },
-    });
-
-    if (!userResponse.ok) {
-      throw new Error(`Не вдалося отримати користувача`);
-    }
-
-    const userData = await userResponse.json();
-    const userId = userData.userId;
-
-    const commentPayload = {
-      userId: userId,
-      campaignId: parseInt(id),
-      content: newComment,
-      complaint: false,
-      createdAt: new Date().toISOString(),
-    };
-
-    const response = await fetch("http://localhost:8080/api/campaign-comments", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Basic ${base64Credentials}`,
-      },
-      body: JSON.stringify(commentPayload),
-    });
-
-    if (!response.ok) {
-      throw new Error("Не вдалося надіслати коментар");
-    }
-
-    const addedComment = {
-      text: newComment,
-      author: (userData.name + " " + (userData.surname || "")) || "Анонім",
-      compalint: false,
-      date: new Date().toLocaleString(),
-    };
-
-    setComments([addedComment, ...comments]);
-    setNewComment("");
-
-  } catch (err) {
-    console.error("Помилка при додаванні коментаря:", err.message);
-    alert("Не вдалося надіслати коментар.");
-  }
-};
-
+  // Функція для додавання скарги у список коментарів без перезавантаження
+  const handleReportSubmitted = (newReportComment) => {
+    setComments([newReportComment, ...comments]);
+  };
 
   if (loading) return <div className="loading">Завантаження...</div>;
   if (error) return <div className="error">Помилка: {error}</div>;
@@ -196,7 +200,7 @@ const ProjectDetail = () => {
       <div className="project-page project-detail-page">
         <div className="container">
           <div className="project-image-container">
-            <img src={project.image} alt={project.title} className="project-image styled-img" />
+            <img src={project.image || baseImage} alt={project.title} className="project-image styled-img" />
           </div>
 
           <div className="project-info">
@@ -246,18 +250,38 @@ const ProjectDetail = () => {
                   rows={3}
                   className="comment-textarea project-detail-textarea"
                 />
-                <button
-                  className="btn btn-first project-detail-comment-btn"
-                  onClick={handleAddComment}
-                >
-                  Додати коментар
-                </button>
+                
+                <div className="comment-actions">
+                  <button
+                    className="btn btn-first project-detail-comment-btn"
+                    onClick={handleAddComment}
+                  >
+                    Додати коментар
+                  </button>
+
+                  <button 
+                    className="btn btn-complaint project-detail-report-btn"
+                    onClick={() => setShowReportForm(true)}
+                  >
+                   Поскаржитися
+                  </button>
+                </div>
               </div>
 
               <ul className="comment-list project-detail-comment-list">
                 {comments.length === 0 && <li className="project-detail-comment-item">Поки що немає коментарів.</li>}
                 {comments.map((comment) => (
-                  <li key={comment.id} className="comment-item project-detail-comment-item">
+                  <li 
+                    key={comment.id} 
+                    className={`comment-item project-detail-comment-item ${comment.complaint ? 'complaint-item' : ''}`}
+                    style={{ position: 'relative' }} 
+                  >
+                    {comment.complaint && (
+                      <span className="complaint-badge">
+                        Скарга
+                      </span>
+                    )}
+                    
                     <div className="comment-meta project-detail-comment-meta">
                       <strong>{comment.author}</strong> — <small>{comment.date}</small>
                     </div>
@@ -269,6 +293,17 @@ const ProjectDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Підключення зовнішнього компонента ReportForm з обробником успіху */}
+      {showReportForm && (
+        <ReportForm 
+          projectId={id} 
+          projectTitle={project.title} 
+          onClose={() => setShowReportForm(false)} 
+          onReportSubmitted={handleReportSubmitted}
+        />
+      )}
+
       <Footer />
     </>
   );
